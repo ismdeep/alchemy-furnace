@@ -1,0 +1,74 @@
+definitions:
+  executor.ExeLog:
+    properties:
+      line:
+        description: 行内容
+        type: string
+      output_at:
+        description: 输出时间
+        type: string
+      type:
+        description: 内容类型，0标准输出，1标准错误输出
+        type: integer
+    type: object
+  response.Run:
+    properties:
+      created_at:
+        type: string
+      exit_code:
+        type: integer
+      id:
+        type: integer
+      logs:
+        items:
+          $ref: '#/definitions/executor.ExeLog'
+        type: array
+      name:
+        type: string
+    type: object
+  response.Task:
+    properties:
+      bash:
+        type: string
+      cron:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/tasks:
+    get:
+      description: get task list
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Task'
+            type: array
+      summary: get task list
+      tags:
+      - Task
+  /api/v1/tasks/:task_id/runs:
+    get:
+      description: get task run list
+      responses: {}
+      summary: get task run list
+      tags:
+      - Task
+  /api/v1/tasks/:task_id/runs/:run_id:
+    get:
+      description: get run detail
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Run'
+      summary: get run detail
+      tags:
+      - Task
+swagger: "2.0"
