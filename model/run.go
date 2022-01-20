@@ -1,12 +1,13 @@
 package model
 
-import "gorm.io/gorm"
+import "time"
 
 // Run model
 type Run struct {
-	gorm.Model
-	TaskID   string `gorm:"type:varchar(255)"`
-	Name     string `gorm:"type:varchar(255)"`
-	ExitCode int    `gorm:"type:tinyint"`
-	Content  string `gorm:"type:longtext"`
+	ID        uint   `gorm:"primary_key"`
+	TaskID    string `gorm:"type:varchar(255);not null"`
+	Name      string `gorm:"type:varchar(255);not null"`
+	ExitCode  int    `gorm:"type:tinyint;not null"`
+	Content   string `gorm:"type:longtext;not null"`
+	CreatedAt time.Time
 }
