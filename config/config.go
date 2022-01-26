@@ -1,44 +1,67 @@
 package config
 
 import (
+	"context"
 	"fmt"
-	"gopkg.in/yaml.v3"
-	"io/ioutil"
+	etcdClientV3 "go.etcd.io/etcd/client/v3"
 	"os"
+	"time"
 )
 
+// ALCHEMY_FURNACE_ROOT
+// ALCHEMY_FURNACE_ETCD
+
+const AlchemyFurnaceConfigName = "alchemy-furnace-config"
+
+var WorkDir string     // working directory
+var etcdAddress string // etcd address
+
 type config struct {
-	DB struct {
-		DSN string `yaml:"dsn"`
-	} `yaml:"db"`
-	Tasks []struct {
-		ID   string `yaml:"id"`
-		Name string `yaml:"name"`
-		Bash string `yaml:"bash"`
-		Cron string `yaml:"cron"`
-	} `yaml:"tasks"`
+	Bind string `yaml:"bind"`
+	DSN  string `yaml:"dsn"`
 }
 
 var Config *config
-var WorkDir string
 
 func init() {
+	// 1. 获取工作目录
 	WorkDir, _ = os.Getwd()
 	if os.Getenv("ALCHEMY_FURNACE_ROOT") != "" {
 		WorkDir = os.Getenv("ALCHEMY_FURNACE_ROOT")
 	}
 
-	bytes, err := ioutil.ReadFile(fmt.Sprintf("%v/config.yaml", WorkDir))
-	if err != nil {
-		panic(err)
+	// 2. 获取ETCD地址
+	etcdAddress = os.Getenv("ALCHEMY_FURNACE_ETCD")
+	if etcdAddress == "" {
+		fmt.Println("ALCHEMY_FURNACE_ETCD is empty")
+		os.Exit(1)
 	}
 
+	// 3. 加载配置
 	Config = &config{}
-	if err := yaml.Unmarshal(bytes, Config); err != nil {
-		panic(err)
-	}
+	load()
 
-	for _, task := range Config.Tasks {
-		fmt.Println(task.Cron, task.ID, task.Name)
-	}
+	// 4. 监听ETCD配置变化
+	go func() {
+		cli, err := etcdClientV3.New(etcdClientV3.Config{
+			Endpoints:   []string{etcdAddress},
+			DialTimeout: 5 * time.Second,
+		})
+		if err != nil {
+			panic(err)
+		}
+
+		watcher := cli.Watch(context.Background(), AlchemyFurnaceConfigName)
+		for {
+			e := <-watcher
+			for _, event := range e.Events {
+				if string(event.Kv.Key) == AlchemyFurnaceConfigName {
+					load()
+					for _, w := range Watchers {
+						w <- true
+					}
+				}
+			}
+		}
+	}()
 }

@@ -3,14 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/ismdeep/alchemy-furnace/api"
+	_ "github.com/ismdeep/alchemy-furnace/api"
 	"github.com/ismdeep/alchemy-furnace/config"
 	"github.com/ismdeep/alchemy-furnace/executor"
 	"github.com/ismdeep/alchemy-furnace/model"
-	"github.com/ismdeep/log"
 	"github.com/ismdeep/rand"
-	"github.com/robfig/cron/v3"
 	"io"
 	"io/ioutil"
 	"os"
@@ -19,7 +16,7 @@ import (
 )
 
 type Task struct {
-	ID       string
+	ID       uint
 	Name     string
 	Bash     string
 	Cron     string
@@ -114,7 +111,6 @@ func (receiver *Task) Run() {
 	content, err := executor.DumpLog(exeID)
 	executor.DestroyExecutor(exeID)
 	if err != nil {
-		log.Error(receiver.ID, log.FieldErr(err))
 		return
 	}
 
@@ -124,31 +120,11 @@ func (receiver *Task) Run() {
 		ExitCode: receiver.ExitCode,
 		Content:  content,
 	}).Error; err != nil {
-		log.Error(receiver.ID, log.FieldErr(err))
 		return
 	}
 
 }
 
 func main() {
-	c := cron.New(cron.WithSeconds())
-	for _, task := range config.Config.Tasks {
-		job := &Task{
-			ID:   task.ID,
-			Name: task.Name,
-			Bash: task.Bash,
-			Cron: task.Cron,
-		}
-		_, _ = c.AddJob(task.Cron, job)
-	}
-	c.Start()
-
-	gin.SetMode(gin.ReleaseMode)
-	eng := gin.Default()
-	eng.GET("/api/v1/tasks", api.TaskList)
-	eng.GET("/api/v1/tasks/:task_id/runs", api.RunList)
-	eng.GET("/api/v1/tasks/:task_id/runs/:run_id", api.RunDetail)
-	if err := eng.Run("0.0.0.0:8080"); err != nil {
-		panic(err)
-	}
+	select {}
 }

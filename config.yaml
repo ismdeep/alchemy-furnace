@@ -1,8 +1,2 @@
 db:
   dsn: 'root:liandanlu123456@tcp(127.0.0.1:10006)/alchemy_furnace?parseTime=true&loc=Local&charset=utf8mb4,utf8'
-
-tasks:
-  - id: '381a205549f20c13e963e7683446f00f'
-    name: 'say hello'
-    bash: '381a205549f20c13e963e7683446f00f.bash'
-    cron: '@every 1s'
