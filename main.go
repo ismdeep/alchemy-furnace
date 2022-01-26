@@ -2,13 +2,15 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/ismdeep/alchemy-furnace/api"
 	"github.com/ismdeep/alchemy-furnace/config"
 	"github.com/ismdeep/alchemy-furnace/executor"
 	"github.com/ismdeep/alchemy-furnace/model"
-	"github.com/ismdeep/log"
+	"github.com/ismdeep/alchemy-furnace/schema"
+	"github.com/ismdeep/jwt"
 	"github.com/ismdeep/rand"
 	"github.com/robfig/cron/v3"
 	"io"
@@ -19,7 +21,7 @@ import (
 )
 
 type Task struct {
-	ID       string
+	ID       uint
 	Name     string
 	Bash     string
 	Cron     string
@@ -114,7 +116,6 @@ func (receiver *Task) Run() {
 	content, err := executor.DumpLog(exeID)
 	executor.DestroyExecutor(exeID)
 	if err != nil {
-		log.Error(receiver.ID, log.FieldErr(err))
 		return
 	}
 
@@ -124,10 +125,32 @@ func (receiver *Task) Run() {
 		ExitCode: receiver.ExitCode,
 		Content:  content,
 	}).Error; err != nil {
-		log.Error(receiver.ID, log.FieldErr(err))
 		return
 	}
 
+}
+
+func Authorization() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.Request.Header.Get("token")
+		bytes, err := jwt.VerifyToken(token)
+		if err != nil {
+			c.JSON(200, map[string]interface{}{"code": 403, "msg": "token verification failed"})
+			c.Abort()
+			return
+		}
+
+		u := schema.LoginUser{}
+		if err := json.Unmarshal([]byte(bytes), &u); err != nil {
+			c.JSON(200, map[string]interface{}{"code": 403, "msg": "token verification failed"})
+			c.Abort()
+			return
+		}
+
+		c.Set("user_id", u.ID)
+		c.Set("username", u.Username)
+		c.Next()
+	}
 }
 
 func main() {
@@ -145,9 +168,13 @@ func main() {
 
 	gin.SetMode(gin.ReleaseMode)
 	eng := gin.Default()
-	eng.GET("/api/v1/tasks", api.TaskList)
-	eng.GET("/api/v1/tasks/:task_id/runs", api.RunList)
-	eng.GET("/api/v1/tasks/:task_id/runs/:run_id", api.RunDetail)
+	eng.POST("/api/v1/sign-up", api.UserRegister)
+
+	auth := eng.Group("/api/v1")
+	auth.Use(Authorization())
+	auth.GET("/api/v1/tasks", api.TaskList)
+	auth.GET("/api/v1/tasks/:task_id/runs", api.RunList)
+	auth.GET("/api/v1/tasks/:task_id/runs/:run_id", api.RunDetail)
 	if err := eng.Run("0.0.0.0:8080"); err != nil {
 		panic(err)
 	}

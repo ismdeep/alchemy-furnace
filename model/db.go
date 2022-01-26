@@ -20,5 +20,11 @@ func init() {
 		break
 	}
 
-	_ = DB.AutoMigrate(&Run{})
+	if err := DB.AutoMigrate(
+		&User{},
+		&Task{},
+		&Run{},
+	); err != nil {
+		panic(err)
+	}
 }

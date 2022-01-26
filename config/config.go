@@ -12,7 +12,7 @@ type config struct {
 		DSN string `yaml:"dsn"`
 	} `yaml:"db"`
 	Tasks []struct {
-		ID   string `yaml:"id"`
+		ID   uint   `yaml:"id"`
 		Name string `yaml:"name"`
 		Bash string `yaml:"bash"`
 		Cron string `yaml:"cron"`
