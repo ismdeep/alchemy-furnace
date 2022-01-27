@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"github.com/ismdeep/alchemy-furnace/config"
 	"github.com/ismdeep/log"
 	"gorm.io/driver/mysql"
@@ -13,7 +12,7 @@ var DB *gorm.DB
 
 func init() {
 	loadInstance := func() {
-		fmt.Println("load model.DB")
+		log.Info("init", log.String("info", "started to load model.DB"))
 		for {
 			instance, err := gorm.Open(mysql.Open(config.Config.DSN))
 			if err != nil {
@@ -23,6 +22,7 @@ func init() {
 			DB = instance
 			break
 		}
+		log.Info("init", log.String("info", "model.DB loaded"))
 	}
 
 	loadInstance()

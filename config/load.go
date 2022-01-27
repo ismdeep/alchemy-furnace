@@ -2,7 +2,6 @@ package config
 
 import (
 	"context"
-	"fmt"
 	"github.com/ismdeep/log"
 	etcdClientV3 "go.etcd.io/etcd/client/v3"
 	"gopkg.in/yaml.v2"
@@ -10,7 +9,7 @@ import (
 )
 
 func load() {
-	fmt.Println("Load Config")
+	log.Info("init", log.String("info", "started to load config"))
 	cli, err := etcdClientV3.New(etcdClientV3.Config{
 		Endpoints:   []string{etcdAddress},
 		DialTimeout: 5 * time.Second,
@@ -34,6 +33,7 @@ func load() {
 			c := &config{}
 			_ = yaml.Unmarshal(kv.Value, c)
 			Config = c
+			log.Info("init", log.String("info", "config loaded"))
 		}
 	}
 

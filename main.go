@@ -11,6 +11,7 @@ import (
 	"github.com/ismdeep/alchemy-furnace/model"
 	"github.com/ismdeep/alchemy-furnace/schema"
 	"github.com/ismdeep/jwt"
+	"github.com/ismdeep/log"
 	"github.com/ismdeep/rand"
 	"io"
 	"io/ioutil"
@@ -162,7 +163,7 @@ func main() {
 	auth.POST("/api/v1/tasks", api.TaskCreate)
 	auth.GET("/api/v1/tasks/:task_id/runs", api.RunList)
 	auth.GET("/api/v1/tasks/:task_id/runs/:run_id", api.RunDetail)
-	fmt.Printf("Listening... %v\n", config.Config.Bind)
+	log.Info("main", log.String("info", "started to listening"), log.String("bind", config.Config.Bind))
 	if err := eng.Run(config.Config.Bind); err != nil {
 		panic(err)
 	}
