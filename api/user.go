@@ -17,5 +17,4 @@ func UserRegister(c *gin.Context) {
 		Fail(c, err.Error())
 		return
 	}
-
 }

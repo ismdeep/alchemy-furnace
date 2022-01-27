@@ -19,15 +19,15 @@ func Test_User_Register(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				username: rand.HexStr(32),
-				password: rand.HexStr(32),
+				username: rand.Username(),
+				password: rand.PasswordEasyToRemember(5),
 			},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := User.Register(tt.args.username, tt.args.password)
+			_, err := User.Register(tt.args.username, tt.args.password)
 			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}
@@ -35,15 +35,15 @@ func Test_User_Register(t *testing.T) {
 
 func Benchmark_User_Register(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		err := User.Register(rand.HexStr(32), rand.HexStr(32))
+		_, err := User.Register(rand.HexStr(32), rand.HexStr(32))
 		assert.NoError(b, err)
 	}
 }
 
 func Test_User_Login(t *testing.T) {
-	username := rand.HexStr(32)
-	password := rand.HexStr(32)
-	err := User.Register(username, password)
+	username := rand.Username()
+	password := rand.PasswordEasyToRemember(5)
+	_, err := User.Register(username, password)
 	assert.NoError(t, err)
 
 	type args struct {
@@ -82,9 +82,9 @@ func Test_User_Login(t *testing.T) {
 }
 
 func Benchmark_User_Login(b *testing.B) {
-	username := rand.HexStr(32)
-	password := rand.HexStr(32)
-	err := User.Register(username, password)
+	username := rand.Username()
+	password := rand.PasswordEasyToRemember(5)
+	_, err := User.Register(username, password)
 	assert.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {

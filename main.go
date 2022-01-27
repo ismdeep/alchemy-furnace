@@ -12,7 +12,6 @@ import (
 	"github.com/ismdeep/alchemy-furnace/schema"
 	"github.com/ismdeep/jwt"
 	"github.com/ismdeep/rand"
-	"github.com/robfig/cron/v3"
 	"io"
 	"io/ioutil"
 	"os"
@@ -154,28 +153,17 @@ func Authorization() gin.HandlerFunc {
 }
 
 func main() {
-	c := cron.New(cron.WithSeconds())
-	for _, task := range config.Config.Tasks {
-		job := &Task{
-			ID:   task.ID,
-			Name: task.Name,
-			Bash: task.Bash,
-			Cron: task.Cron,
-		}
-		_, _ = c.AddJob(task.Cron, job)
-	}
-	c.Start()
-
 	gin.SetMode(gin.ReleaseMode)
 	eng := gin.Default()
 	eng.POST("/api/v1/sign-up", api.UserRegister)
-
 	auth := eng.Group("/api/v1")
 	auth.Use(Authorization())
 	auth.GET("/api/v1/tasks", api.TaskList)
+	auth.POST("/api/v1/tasks", api.TaskCreate)
 	auth.GET("/api/v1/tasks/:task_id/runs", api.RunList)
 	auth.GET("/api/v1/tasks/:task_id/runs/:run_id", api.RunDetail)
-	if err := eng.Run("0.0.0.0:8080"); err != nil {
+	fmt.Printf("Listening... %v\n", config.Config.Bind)
+	if err := eng.Run(config.Config.Bind); err != nil {
 		panic(err)
 	}
 }

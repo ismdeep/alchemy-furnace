@@ -14,21 +14,22 @@ type userHandler struct {
 
 var User = &userHandler{}
 
-func (receiver *userHandler) Register(username string, password string) error {
+func (receiver *userHandler) Register(username string, password string) (uint, error) {
 	exists, err := model.UserStore.UserExists(username)
 	if err != nil {
-		return errors.New("system error")
+		return 0, errors.New("system error")
 	}
 	if exists {
-		return errors.New("user already exists")
+		return 0, errors.New("user already exists")
 	}
 
-	model.DB.Create(&model.User{
+	item := &model.User{
 		Username: username,
 		Digest:   digest.Generate(password),
-	})
+	}
+	model.DB.Create(item)
 
-	return nil
+	return item.ID, nil
 }
 
 func (receiver *userHandler) Login(username string, password string) (string, error) {

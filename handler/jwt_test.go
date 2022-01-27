@@ -8,9 +8,9 @@ import (
 )
 
 func Test_Jwt_Refresh(t *testing.T) {
-	username := rand.HexStr(32)
-	password := rand.HexStr(32)
-	err := User.Register(username, password)
+	username := rand.Username()
+	password := rand.PasswordEasyToRemember(5)
+	_, err := User.Register(username, password)
 	assert.NoError(t, err)
 
 	token, err := User.Login(username, password)
