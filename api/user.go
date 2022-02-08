@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/ismdeep/alchemy-furnace/handler"
 	"github.com/ismdeep/alchemy-furnace/request"
 )
 
@@ -17,4 +18,11 @@ func UserRegister(c *gin.Context) {
 		Fail(c, err.Error())
 		return
 	}
+
+	if _, err := handler.User.Register(req.Username, req.Password); err != nil {
+		Fail(c, err.Error())
+		return
+	}
+
+	Success(c, "", nil)
 }
