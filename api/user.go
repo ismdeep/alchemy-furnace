@@ -26,3 +26,25 @@ func UserRegister(c *gin.Context) {
 
 	Success(c, "", nil)
 }
+
+// UserLogin user login
+// @Summary user login
+// @Author l.jiang.1024@gmail.com
+// @Description user login
+// @Tags User
+// @Router /api/v1/sign-in [post]
+func UserLogin(c *gin.Context) {
+	req := &request.User{}
+	if err := c.BindJSON(req); err != nil {
+		Fail(c, err.Error())
+		return
+	}
+
+	respData, err := handler.User.Login(req.Username, req.Password)
+	if err != nil {
+		Fail(c, err.Error())
+		return
+	}
+
+	Success(c, "", respData)
+}

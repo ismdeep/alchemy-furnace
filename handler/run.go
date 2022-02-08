@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/ismdeep/alchemy-furnace/executor"
 	"github.com/ismdeep/alchemy-furnace/model"
 	"github.com/ismdeep/alchemy-furnace/response"
@@ -12,7 +13,7 @@ type runHandler struct{}
 var Run = &runHandler{}
 
 // List tasks
-func (receiver *runHandler) List(taskID string, page int, size int) ([]*response.Run, int64, error) {
+func (receiver *runHandler) List(taskID uint, page int, size int) ([]*response.Run, int64, error) {
 	items := make([]*model.Run, 0)
 	var total int64
 	conn := model.DB.Model(&items).Where("task_id=?", taskID)
@@ -37,7 +38,7 @@ func (receiver *runHandler) List(taskID string, page int, size int) ([]*response
 	return results, total, nil
 }
 
-func (receiver *runHandler) Detail(taskID string, runID uint) (*response.Run, error) {
+func (receiver *runHandler) Detail(taskID uint, runID uint) (*response.Run, error) {
 	item := &model.Run{}
 	if err := model.DB.Where("id=? AND task_id=?", runID, taskID).First(item).Error; err != nil {
 		return nil, err
@@ -53,4 +54,28 @@ func (receiver *runHandler) Detail(taskID string, runID uint) (*response.Run, er
 		Logs:      logs,
 		CreatedAt: item.CreatedAt,
 	}, nil
+}
+
+func (receiver *runHandler) Start(taskID uint) error {
+	// 1. check taskID
+	var cnt int64
+	if err := model.DB.Model(&model.Task{}).Where("id=?", taskID).Count(&cnt).Error; err != nil {
+		return err
+	}
+	if cnt <= 0 {
+		return errors.New("task is not exists")
+	}
+
+	// 2. write info
+	if err := model.DB.Create(&model.Run{
+		TaskID:      taskID,
+		TriggerType: 0,
+		Name:        "",
+		ExitCode:    0,
+		Content:     "",
+	}).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

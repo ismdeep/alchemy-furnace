@@ -1,0 +1,29 @@
+### get task list
+GET {{host}}/api/v1/tasks
+Accept: application/json
+Authorization: Bearer {{token}}
+
+
+### create a task
+POST {{host}}/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "task001",
+  "cron": "@every 3s",
+  "bash_content": "sleep 1",
+  "description": "task"
+}
+
+
+### run task
+POST {{host}}/api/v1/tasks/1/runs
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{}
+
+### get task run list
+GET {{host}}/api/v1/tasks/1/runs
+Authorization: Bearer {{token}}

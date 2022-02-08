@@ -1,0 +1,9 @@
+### user login
+POST {{host}}/api/v1/sign-in
+Content-Type: application/json
+
+{
+  "username": "ismdeep",
+  "password": "123456"
+}
+
