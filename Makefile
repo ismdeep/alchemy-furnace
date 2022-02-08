@@ -35,7 +35,11 @@ swag-doc:
 
 .PHONY: docker-local
 docker-local:
-	docker build -t alchemy-furnace:local .
+	docker build -t ismdeep/alchemy-furnace:local .
+
+.PHONY: docker-build
+docker-build:
+	docker build -t ismdeep/alchemy-furnace:latest .
 
 .PHONY: vendor
 vendor:

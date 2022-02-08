@@ -12,7 +12,7 @@ import (
 func Authorization() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get("Authorization")
-		if token[0:7] != "Bearer " {
+		if len(token) > 7 && token[0:7] != "Bearer " {
 			c.JSON(200, map[string]interface{}{"code": 403, "msg": "token verification failed"})
 			c.Abort()
 			return
