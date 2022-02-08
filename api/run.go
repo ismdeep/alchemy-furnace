@@ -14,10 +14,10 @@ import (
 // @Tags Task
 // @Router /api/v1/tasks/:task_id/runs [get]
 func RunList(c *gin.Context) {
-	taskID := c.Param("task_id")
-	page, err1 := parser.ToInt(c.DefaultQuery("page", "1"))
-	size, err2 := parser.ToInt(c.DefaultQuery("size", "10"))
-	if err := util.FirstError(err1, err2); err != nil {
+	taskID, err1 := parser.ToUint(c.Param("task_id"))
+	page, err2 := parser.ToInt(c.DefaultQuery("page", "1"))
+	size, err3 := parser.ToInt(c.DefaultQuery("size", "10"))
+	if err := util.FirstError(err1, err2, err3); err != nil {
 		Fail(c, err.Error())
 		return
 	}
@@ -39,9 +39,9 @@ func RunList(c *gin.Context) {
 // @Success 200 {object} response.Run
 // @Router /api/v1/tasks/:task_id/runs/:run_id [get]
 func RunDetail(c *gin.Context) {
-	taskID := c.Param("task_id")
-	runID, err := parser.ToUint(c.Param("run_id"))
-	if err != nil {
+	taskID, err1 := parser.ToUint(c.Param("task_id"))
+	runID, err2 := parser.ToUint(c.Param("run_id"))
+	if err := util.FirstError(err1, err2); err != nil {
 		Fail(c, err.Error())
 		return
 	}
@@ -54,4 +54,25 @@ func RunDetail(c *gin.Context) {
 
 	Success(c, "", respData)
 	return
+}
+
+// RunCreate create a run for task
+// @Summary creates a run for task
+// @Author l.jiang.1024@gmail.com
+// @Description create a run for task
+// @Tags Task
+// @Router /api/v1/tasks/:task_id/runs [post]
+func RunCreate(c *gin.Context) {
+	taskID, err1 := parser.ToUint(c.Param("task_id"))
+	if err := util.FirstError(err1); err != nil {
+		Fail(c, err.Error())
+		return
+	}
+
+	if err := handler.Run.Start(taskID); err != nil {
+		Fail(c, err.Error())
+		return
+	}
+
+	Success(c, "", nil)
 }

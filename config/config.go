@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"fmt"
+	"github.com/ismdeep/jwt"
 	etcdClientV3 "go.etcd.io/etcd/client/v3"
 	"os"
 	"time"
@@ -19,6 +20,7 @@ var etcdAddress string // etcd address
 type config struct {
 	Bind string `yaml:"bind"`
 	DSN  string `yaml:"dsn"`
+	JWT  string `yaml:"jwt"`
 }
 
 var Config *config
@@ -40,6 +42,13 @@ func init() {
 	// 3. 加载配置
 	Config = &config{}
 	load()
+
+	if Config.JWT != "" {
+		jwt.Init(&jwt.Config{
+			Key:    Config.JWT,
+			Expire: "72h",
+		})
+	}
 
 	// 4. 监听ETCD配置变化
 	go func() {

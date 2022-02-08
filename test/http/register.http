@@ -1,0 +1,9 @@
+### Register
+POST {{host}}/api/v1/sign-up
+Content-Type: application/json
+
+{
+  "username": "ismdeep",
+  "password": "123456"
+}
+

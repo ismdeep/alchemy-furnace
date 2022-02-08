@@ -11,8 +11,13 @@ import (
 
 func Authorization() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.Request.Header.Get("token")
-		bytes, err := jwt.VerifyToken(token)
+		token := c.Request.Header.Get("Authorization")
+		if len(token) > 7 && token[0:7] != "Bearer " {
+			c.JSON(200, map[string]interface{}{"code": 403, "msg": "token verification failed"})
+			c.Abort()
+			return
+		}
+		bytes, err := jwt.VerifyToken(token[7:])
 		if err != nil {
 			c.JSON(200, map[string]interface{}{"code": 403, "msg": "token verification failed"})
 			c.Abort()
@@ -35,13 +40,18 @@ func Authorization() gin.HandlerFunc {
 func init() {
 	gin.SetMode(gin.ReleaseMode)
 	eng := gin.Default()
-	eng.POST("/api/v1/sign-up", UserRegister)
-	auth := eng.Group("/api/v1")
-	auth.Use(Authorization())
+
+	noAuth := eng.Group("")
+	noAuth.POST("/api/v1/sign-up", UserRegister)
+	noAuth.POST("/api/v1/sign-in", UserLogin)
+
+	auth := eng.Group("").Use(Authorization())
 	auth.GET("/api/v1/tasks", TaskList)
 	auth.POST("/api/v1/tasks", TaskCreate)
+	auth.POST("/api/v1/tasks/:task_id/runs", RunCreate)
 	auth.GET("/api/v1/tasks/:task_id/runs", RunList)
 	auth.GET("/api/v1/tasks/:task_id/runs/:run_id", RunDetail)
+
 	log.Info("main", log.String("info", "started to listening"), log.String("bind", config.Config.Bind))
 	go func() {
 		if err := eng.Run(config.Config.Bind); err != nil {

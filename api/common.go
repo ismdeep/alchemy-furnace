@@ -13,6 +13,8 @@ func Success(c *gin.Context, msg string, data interface{}) {
 	resp := make(map[string]interface{})
 	resp["code"] = 0
 	resp["msg"] = msg
-	resp["data"] = data
+	if data != nil {
+		resp["data"] = data
+	}
 	c.JSON(200, resp)
 }
