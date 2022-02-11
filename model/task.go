@@ -6,6 +6,7 @@ type Task struct {
 	UserID      uint
 	User        User
 	Cron        string `gorm:"type:varchar(255);not null"`
+	RunOn       string `gorm:"type:varchar(512);not null"`
 	BashContent string `gorm:"type:longtext;not null"`
 	Description string `gorm:"type:text;not null"`
 }

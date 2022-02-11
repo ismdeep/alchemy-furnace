@@ -6,6 +6,9 @@ import (
 	"github.com/ismdeep/alchemy-furnace/executor"
 	"github.com/ismdeep/alchemy-furnace/model"
 	"github.com/ismdeep/alchemy-furnace/response"
+	"github.com/ismdeep/alchemy-furnace/runner"
+	"github.com/ismdeep/log"
+	"time"
 )
 
 type runHandler struct{}
@@ -29,6 +32,7 @@ func (receiver *runHandler) List(taskID uint, page int, size int) ([]*response.R
 		results = append(results, &response.Run{
 			ID:        item.ID,
 			Name:      item.Name,
+			Status:    item.Status,
 			ExitCode:  item.ExitCode,
 			Logs:      []executor.ExeLog{},
 			CreatedAt: item.CreatedAt,
@@ -67,15 +71,43 @@ func (receiver *runHandler) Start(taskID uint) error {
 	}
 
 	// 2. write info
-	if err := model.DB.Create(&model.Run{
+	executorID := executor.GenerateExecutor()
+	run := &model.Run{
+		ExecutorID:  executorID,
 		TaskID:      taskID,
 		TriggerType: 0,
 		Name:        "",
 		ExitCode:    0,
 		Content:     "",
-	}).Error; err != nil {
+	}
+	if err := model.DB.Create(run).Error; err != nil {
 		return err
 	}
+
+	// 3. start to run task
+	go func(runID uint, executorID string) {
+		run := &model.Run{}
+		model.DB.Where("id=?", runID).First(run)
+		startTime := time.Now()
+		run.StartTime = startTime
+		run.EndTime = time.Now()
+		run.Status = model.RunEnumsStatusRunning
+		model.DB.Save(run)
+
+		exitCode, err := runner.Run(runID, executorID)
+		if err != nil {
+			log.Error("Run", log.FieldErr(err))
+		}
+		run.Status = model.RunEnumsStatusDone
+		run.ExitCode = exitCode
+		run.EndTime = time.Now()
+		run.CmdLog, err = executor.DumpLog(executorID)
+		if err != nil {
+			log.Error("Run", log.FieldErr(err))
+		}
+		model.DB.Save(run)
+
+	}(run.ID, executorID)
 
 	return nil
 }

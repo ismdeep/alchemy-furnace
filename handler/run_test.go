@@ -26,7 +26,7 @@ func Test_runHandler_List(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, _, err := Run.List("", tt.args.page, tt.args.size)
+			_, _, err := Run.List(1, tt.args.page, tt.args.size)
 			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}

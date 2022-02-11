@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/ismdeep/alchemy-furnace/model"
+	"github.com/ismdeep/alchemy-furnace/response"
 	"github.com/ismdeep/alchemy-furnace/schema"
 	"github.com/ismdeep/digest"
 	"github.com/ismdeep/jwt"
@@ -57,4 +58,15 @@ func (receiver *userHandler) Login(username string, password string) (string, er
 	}
 
 	return token, nil
+}
+
+func (receiver *userHandler) GetProfile(userID uint) (*response.UserProfile, error) {
+	user := &model.User{}
+	if err := model.DB.Where("id=?", userID).First(user).Error; err != nil {
+		return nil, err
+	}
+
+	return &response.UserProfile{
+		Username: user.Username,
+	}, nil
 }
