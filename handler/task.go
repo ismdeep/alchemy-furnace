@@ -21,6 +21,7 @@ func (receiver *taskHandler) Create(userID uint, req *request.Task) (uint, error
 		Name:        req.Name,
 		UserID:      userID,
 		Cron:        req.Cron,
+		RunOn:       req.RunOn,
 		BashContent: req.BashContent,
 		Description: req.Description,
 	}
@@ -28,6 +29,11 @@ func (receiver *taskHandler) Create(userID uint, req *request.Task) (uint, error
 	model.DB.Create(item)
 
 	return item.ID, nil
+}
+
+func (receiver *taskHandler) Update(taskID uint, req *request.Task) error {
+	// TODO implement here
+	return nil
 }
 
 // List get task list

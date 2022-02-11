@@ -11,6 +11,19 @@ definitions:
         description: 内容类型，0标准输出，1标准错误输出
         type: integer
     type: object
+  request.Task:
+    properties:
+      bash_content:
+        type: string
+      cron:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      run_on:
+        type: string
+    type: object
   response.Run:
     properties:
       created_at:
@@ -33,13 +46,27 @@ definitions:
       cron:
         type: string
       id:
-        type: string
+        type: integer
       name:
         type: string
     type: object
 info:
   contact: {}
 paths:
+  /api/v1/sign-in:
+    post:
+      description: user login
+      responses: {}
+      summary: user login
+      tags:
+      - User
+  /api/v1/sign-up:
+    post:
+      description: user register
+      responses: {}
+      summary: user register
+      tags:
+      - User
   /api/v1/tasks:
     get:
       description: get task list
@@ -53,11 +80,54 @@ paths:
       summary: get task list
       tags:
       - Task
+    post:
+      description: create a task
+      parameters:
+      - description: Bearer 31a165ba1be6dec616b1f8f3207b4273
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: JSON数据
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.Task'
+      responses: {}
+      summary: creates a task
+      tags:
+      - Task
+  /api/v1/tasks/:task_id:
+    put:
+      description: update a task
+      parameters:
+      - description: Bearer 31a165ba1be6dec616b1f8f3207b4273
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: JSON数据
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.Task'
+      responses: {}
+      summary: updates a task
+      tags:
+      - Task
   /api/v1/tasks/:task_id/runs:
     get:
       description: get task run list
       responses: {}
       summary: get task run list
+      tags:
+      - Task
+    post:
+      description: create a run for task
+      responses: {}
+      summary: creates a run for task
       tags:
       - Task
   /api/v1/tasks/:task_id/runs/:run_id:

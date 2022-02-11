@@ -48,6 +48,7 @@ func init() {
 	auth := eng.Group("").Use(Authorization())
 	auth.GET("/api/v1/tasks", TaskList)
 	auth.POST("/api/v1/tasks", TaskCreate)
+	auth.PUT("/api/v1/tasks/:task_id", TaskUpdate)
 	auth.POST("/api/v1/tasks/:task_id/runs", RunCreate)
 	auth.GET("/api/v1/tasks/:task_id/runs", RunList)
 	auth.GET("/api/v1/tasks/:task_id/runs/:run_id", RunDetail)

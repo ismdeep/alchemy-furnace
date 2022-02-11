@@ -23,6 +23,26 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/sign-in": {
+            "post": {
+                "description": "user login",
+                "tags": [
+                    "User"
+                ],
+                "summary": "user login",
+                "responses": {}
+            }
+        },
+        "/api/v1/sign-up": {
+            "post": {
+                "description": "user register",
+                "tags": [
+                    "User"
+                ],
+                "summary": "user register",
+                "responses": {}
+            }
+        },
         "/api/v1/tasks": {
             "get": {
                 "description": "get task list",
@@ -41,6 +61,60 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "description": "create a task",
+                "tags": [
+                    "Task"
+                ],
+                "summary": "creates a task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer 31a165ba1be6dec616b1f8f3207b4273",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "JSON数据",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Task"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/tasks/:task_id": {
+            "put": {
+                "description": "update a task",
+                "tags": [
+                    "Task"
+                ],
+                "summary": "updates a task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer 31a165ba1be6dec616b1f8f3207b4273",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "JSON数据",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Task"
+                        }
+                    }
+                ],
+                "responses": {}
             }
         },
         "/api/v1/tasks/:task_id/runs": {
@@ -50,6 +124,14 @@ var doc = `{
                     "Task"
                 ],
                 "summary": "get task run list",
+                "responses": {}
+            },
+            "post": {
+                "description": "create a run for task",
+                "tags": [
+                    "Task"
+                ],
+                "summary": "creates a run for task",
                 "responses": {}
             }
         },
@@ -89,6 +171,26 @@ var doc = `{
                 }
             }
         },
+        "request.Task": {
+            "type": "object",
+            "properties": {
+                "bash_content": {
+                    "type": "string"
+                },
+                "cron": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "run_on": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Run": {
             "type": "object",
             "properties": {
@@ -122,7 +224,7 @@ var doc = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
