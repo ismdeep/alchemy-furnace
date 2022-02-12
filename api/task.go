@@ -68,3 +68,25 @@ func TaskUpdate(c *gin.Context) {
 
 	Success(c, "", nil)
 }
+
+// TaskDetail get task detail
+// @Summary get task detail
+// @Author @uniontech.com
+// @Description get task detail
+// @Tags Task
+// @Router /api/v1/tasks/:id [get]
+func TaskDetail(c *gin.Context) {
+	taskID, err1 := parser.ToUint(c.Param("task_id"))
+	if err := util.FirstError(err1); err != nil {
+		Fail(c, err.Error())
+		return
+	}
+
+	respData, err := handler.Task.Detail(taskID)
+	if err != nil {
+		Fail(c, err.Error())
+		return
+	}
+
+	Success(c, "", respData)
+}

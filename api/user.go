@@ -48,3 +48,20 @@ func UserLogin(c *gin.Context) {
 
 	Success(c, "", respData)
 }
+
+// UserMyProfile user profile
+// @Summary user profile
+// @Author @uniontech.com
+// @Description user profile
+// @Tags User
+// @Router /api/v1/my/profile [get]
+func UserMyProfile(c *gin.Context) {
+	userID := c.GetUint("user_id")
+	userProfile, err := handler.User.GetProfile(userID)
+	if err != nil {
+		Fail(c, err.Error())
+		return
+	}
+
+	Success(c, "", userProfile)
+}
