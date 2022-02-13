@@ -50,9 +50,9 @@ func Run(runID uint, executorID string) (int, error) {
 	wg.Add(1)
 	wg.Add(1)
 	listenFunc := func(p io.ReadCloser, outType int) {
+		t := bufio.NewReader(p)
 		line := ""
 		for {
-			t := bufio.NewReader(p)
 			s, isPrefix, err := t.ReadLine()
 			if err != nil {
 				if line != "" {

@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/gin-gonic/gin v1.7.7
+	github.com/gorilla/websocket v1.4.2
 	github.com/ismdeep/digest v0.0.1
 	github.com/ismdeep/jwt v0.2.1
 	github.com/ismdeep/log v0.0.5

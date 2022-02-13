@@ -30,12 +30,14 @@ func (receiver *runHandler) List(taskID uint, page int, size int) ([]*response.R
 	results := make([]*response.Run, 0)
 	for _, item := range items {
 		results = append(results, &response.Run{
-			ID:        item.ID,
-			Name:      item.Name,
-			Status:    item.Status,
-			ExitCode:  item.ExitCode,
-			Logs:      []executor.ExeLog{},
-			CreatedAt: item.CreatedAt,
+			ID:               item.ID,
+			Name:             item.Name,
+			Status:           item.Status,
+			ExitCode:         item.ExitCode,
+			CreatedAt:        item.CreatedAt,
+			StartTime:        item.StartTime,
+			EndTime:          item.EndTime,
+			TimeElapseSecond: uint(item.EndTime.Unix() - item.StartTime.Unix()),
 		})
 	}
 

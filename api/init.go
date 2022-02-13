@@ -60,7 +60,8 @@ func init() {
 	auth.POST("/api/v1/tasks/:task_id/runs", RunCreate) // Start to run a task
 	auth.GET("/api/v1/tasks/:task_id/runs", RunList)
 	auth.GET("/api/v1/tasks/:task_id/runs/:run_id", RunDetail)
-	auth.GET("/api/v1/my/profile", UserMyProfile) // get login user profile
+	noAuth.GET("/api/v1/tasks/:task_id/runs/:run_id/log", RunLog) // Get run log with websocket
+	auth.GET("/api/v1/my/profile", UserMyProfile)                 // get login user profile
 
 	log.Info("main", log.String("info", "started to listening"), log.String("bind", config.Config.Bind))
 	go func() {
