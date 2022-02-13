@@ -14,8 +14,8 @@ type Run struct {
 	ExitCode    int       `gorm:"type:tinyint;not null"`
 	CmdLog      string    `gorm:"type:longtext"`
 	Content     string    `gorm:"type:longtext;not null"`
-	StartTime   time.Time `gorm:"default:current_timestamp"`
-	EndTime     time.Time `gorm:"default:current_timestamp"`
+	StartTime   time.Time `gorm:"type:timestamp;default:current_timestamp"`
+	EndTime     time.Time `gorm:"type:timestamp;default:current_timestamp"`
 	CreatedAt   time.Time
 }
 

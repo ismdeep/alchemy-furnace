@@ -71,7 +71,7 @@ func TaskUpdate(c *gin.Context) {
 
 // TaskDetail get task detail
 // @Summary get task detail
-// @Author @uniontech.com
+// @Author l.jiang.1024@gmail.com
 // @Description get task detail
 // @Tags Task
 // @Router /api/v1/tasks/:id [get]
