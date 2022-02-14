@@ -30,6 +30,7 @@ func init() {
 		&User{},
 		&Task{},
 		&Run{},
+		&Node{},
 	); err != nil {
 		log.Error("model", log.FieldErr(err))
 	}
