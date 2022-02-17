@@ -19,7 +19,7 @@ var Run = &runHandler{}
 func (receiver *runHandler) List(taskID uint, page int, size int) ([]*response.Run, int64, error) {
 	items := make([]*model.Run, 0)
 	var total int64
-	conn := model.DB.Model(&items).Where("task_id=?", taskID)
+	conn := model.DB.Preload("Trigger").Model(&items).Where("task_id=?", taskID)
 	if err := conn.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
@@ -32,6 +32,7 @@ func (receiver *runHandler) List(taskID uint, page int, size int) ([]*response.R
 		results = append(results, &response.Run{
 			ID:               item.ID,
 			Name:             item.Name,
+			TriggerName:      item.TriggerName,
 			Status:           item.Status,
 			ExitCode:         item.ExitCode,
 			CreatedAt:        item.CreatedAt,
@@ -62,25 +63,25 @@ func (receiver *runHandler) Detail(taskID uint, runID uint) (*response.Run, erro
 	}, nil
 }
 
-func (receiver *runHandler) Start(taskID uint) error {
-	// 1. check taskID
-	var cnt int64
-	if err := model.DB.Model(&model.Task{}).Where("id=?", taskID).Count(&cnt).Error; err != nil {
+func (receiver *runHandler) Start(triggerID uint) error {
+	// 1. check triggerID
+	var triggers []model.Trigger
+	if err := model.DB.Preload("Task").Where("id=?", triggerID).Find(&triggers).Error; err != nil {
 		return err
 	}
-	if cnt <= 0 {
-		return errors.New("task is not exists")
+	if len(triggers) <= 0 {
+		return errors.New("trigger is not exists")
 	}
+	trigger := triggers[0]
 
 	// 2. write info
 	executorID := executor.GenerateExecutor()
 	run := &model.Run{
 		ExecutorID:  executorID,
-		TaskID:      taskID,
-		TriggerType: 0,
-		Name:        "",
-		ExitCode:    0,
-		Content:     "",
+		TaskID:      trigger.TaskID,
+		TriggerID:   triggerID,
+		TriggerName: trigger.Name,
+		TriggerType: model.RunEnumsTriggerTypeManual,
 	}
 	if err := model.DB.Create(run).Error; err != nil {
 		return err
@@ -96,7 +97,7 @@ func (receiver *runHandler) Start(taskID uint) error {
 		run.Status = model.RunEnumsStatusRunning
 		model.DB.Save(run)
 
-		exitCode, err := runner.Run(runID, executorID)
+		exitCode, err := runner.Run(runID, executorID) // 开始执行
 		if err != nil {
 			log.Error("Run", log.FieldErr(err))
 		}
@@ -108,7 +109,6 @@ func (receiver *runHandler) Start(taskID uint) error {
 			log.Error("Run", log.FieldErr(err))
 		}
 		model.DB.Save(run)
-
 	}(run.ID, executorID)
 
 	return nil

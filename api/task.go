@@ -8,6 +8,13 @@ import (
 	"github.com/ismdeep/parser"
 )
 
+func init() {
+	auth.GET("/api/v1/tasks", TaskList)
+	auth.POST("/api/v1/tasks", TaskCreate)
+	auth.PUT("/api/v1/tasks/:task_id", TaskUpdate)
+	auth.GET("/api/v1/tasks/:task_id", TaskDetail)
+}
+
 // TaskList get task list
 // @Summary get task list
 // @Author l.jiang.1024@gmail.com

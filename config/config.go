@@ -1,29 +1,19 @@
 package config
 
 import (
-	"context"
-	"fmt"
 	"github.com/ismdeep/jwt"
-	etcdClientV3 "go.etcd.io/etcd/client/v3"
+	"github.com/ismdeep/rand"
 	"os"
-	"time"
 )
 
-// ALCHEMY_FURNACE_ROOT
-// ALCHEMY_FURNACE_ETCD
+// WorkDir working directory ALCHEMY_FURNACE_ROOT
+var WorkDir string
 
-const AlchemyFurnaceConfigName = "alchemy-furnace-config"
+// JWT key ALCHEMY_FURNACE_JWT
+var JWT string
 
-var WorkDir string     // working directory
-var etcdAddress string // etcd address
-
-type config struct {
-	Bind string `yaml:"bind"`
-	DSN  string `yaml:"dsn"`
-	JWT  string `yaml:"jwt"`
-}
-
-var Config *config
+// Bind listen ALCHEMY_FURNACE_BIND
+var Bind string
 
 func init() {
 	// 1. 获取工作目录
@@ -32,45 +22,20 @@ func init() {
 		WorkDir = os.Getenv("ALCHEMY_FURNACE_ROOT")
 	}
 
-	// 2. 获取ETCD地址
-	etcdAddress = os.Getenv("ALCHEMY_FURNACE_ETCD")
-	if etcdAddress == "" {
-		fmt.Println("ALCHEMY_FURNACE_ETCD is empty")
-		os.Exit(1)
+	// 2. 获取 JWT 密钥
+	JWT = rand.Str(32)
+	if os.Getenv("ALCHEMY_FURNACE_JWT") != "" {
+		JWT = os.Getenv("ALCHEMY_FURNACE_JWT")
 	}
 
-	// 3. 加载配置
-	Config = &config{}
-	load()
-
-	if Config.JWT != "" {
-		jwt.Init(&jwt.Config{
-			Key:    Config.JWT,
-			Expire: "72h",
-		})
+	// 3. 获取 Bind 地址
+	Bind = "0.0.0.0:8000"
+	if os.Getenv("ALCHEMY_FURNACE_BIND") != "" {
+		Bind = os.Getenv("ALCHEMY_FURNACE_BIND")
 	}
 
-	// 4. 监听ETCD配置变化
-	go func() {
-		cli, err := etcdClientV3.New(etcdClientV3.Config{
-			Endpoints:   []string{etcdAddress},
-			DialTimeout: 5 * time.Second,
-		})
-		if err != nil {
-			panic(err)
-		}
-
-		watcher := cli.Watch(context.Background(), AlchemyFurnaceConfigName)
-		for {
-			e := <-watcher
-			for _, event := range e.Events {
-				if string(event.Kv.Key) == AlchemyFurnaceConfigName {
-					load()
-					for _, w := range Watchers {
-						w <- true
-					}
-				}
-			}
-		}
-	}()
+	jwt.Init(&jwt.Config{
+		Key:    JWT,
+		Expire: "72h",
+	})
 }
