@@ -23,14 +23,22 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/my/profile": {
+            "get": {
+                "description": "user profile",
+                "tags": [
+                    "User"
+                ],
+                "summary": "user profile"
+            }
+        },
         "/api/v1/sign-in": {
             "post": {
                 "description": "user login",
                 "tags": [
                     "User"
                 ],
-                "summary": "user login",
-                "responses": {}
+                "summary": "user login"
             }
         },
         "/api/v1/sign-up": {
@@ -39,8 +47,7 @@ var doc = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "user register",
-                "responses": {}
+                "summary": "user register"
             }
         },
         "/api/v1/tasks": {
@@ -85,8 +92,16 @@ var doc = `{
                             "$ref": "#/definitions/request.Task"
                         }
                     }
+                ]
+            }
+        },
+        "/api/v1/tasks/:id": {
+            "get": {
+                "description": "get task detail",
+                "tags": [
+                    "Task"
                 ],
-                "responses": {}
+                "summary": "get task detail"
             }
         },
         "/api/v1/tasks/:task_id": {
@@ -113,8 +128,7 @@ var doc = `{
                             "$ref": "#/definitions/request.Task"
                         }
                     }
-                ],
-                "responses": {}
+                ]
             }
         },
         "/api/v1/tasks/:task_id/runs": {
@@ -123,16 +137,7 @@ var doc = `{
                 "tags": [
                     "Task"
                 ],
-                "summary": "get task run list",
-                "responses": {}
-            },
-            "post": {
-                "description": "create a run for task",
-                "tags": [
-                    "Task"
-                ],
-                "summary": "creates a run for task",
-                "responses": {}
+                "summary": "get task run list"
             }
         },
         "/api/v1/tasks/:task_id/runs/:run_id": {
@@ -150,6 +155,49 @@ var doc = `{
                         }
                     }
                 }
+            }
+        },
+        "/api/v1/tasks/:task_id/runs/:run_id/log": {
+            "get": {
+                "description": "get run log with websocket",
+                "tags": [
+                    "Task"
+                ],
+                "summary": "get run log with websocket"
+            }
+        },
+        "/api/v1/tasks/:task_id/triggers": {
+            "get": {
+                "description": "get trigger list",
+                "tags": [
+                    "Trigger"
+                ],
+                "summary": "get trigger list"
+            },
+            "post": {
+                "description": "add a trigger",
+                "tags": [
+                    "Trigger"
+                ],
+                "summary": "add a trigger"
+            }
+        },
+        "/api/v1/tasks/:task_id/triggers/:trigger_id": {
+            "put": {
+                "description": "update a trigger",
+                "tags": [
+                    "Trigger"
+                ],
+                "summary": "update a trigger"
+            }
+        },
+        "/api/v1/tasks/:task_id/triggers/:trigger_id/runs": {
+            "post": {
+                "description": "create a run for task",
+                "tags": [
+                    "Task"
+                ],
+                "summary": "creates a run for task"
             }
         }
     },
@@ -177,9 +225,6 @@ var doc = `{
                 "bash_content": {
                     "type": "string"
                 },
-                "cron": {
-                    "type": "string"
-                },
                 "description": {
                     "type": "string"
                 },
@@ -197,6 +242,9 @@ var doc = `{
                 "created_at": {
                     "type": "string"
                 },
+                "end_time": {
+                    "type": "string"
+                },
                 "exit_code": {
                     "type": "integer"
                 },
@@ -211,6 +259,15 @@ var doc = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "time_elapse_second": {
+                    "type": "integer"
                 }
             }
         },
@@ -225,6 +282,9 @@ var doc = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "last_run": {
+                    "$ref": "#/definitions/response.Run"
                 },
                 "name": {
                     "type": "string"

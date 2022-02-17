@@ -6,6 +6,12 @@ import (
 	"github.com/ismdeep/alchemy-furnace/request"
 )
 
+func init() {
+	noAuth.POST("/api/v1/sign-up", UserRegister)
+	noAuth.POST("/api/v1/sign-in", UserLogin)
+	auth.GET("/api/v1/my/profile", UserMyProfile) // get login user profile
+}
+
 // UserRegister user register
 // @Summary user register
 // @Author l.jiang.1024@gmail.com

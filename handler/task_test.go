@@ -26,7 +26,6 @@ func Test_taskHandler_Create(t *testing.T) {
 				userID: userID,
 				req: &request.Task{
 					Name:        "1",
-					Cron:        "@every 3m",
 					BashContent: "sleep 10",
 					Description: "noting to describe",
 				},
@@ -48,7 +47,6 @@ func Test_taskHandler_List(t *testing.T) {
 
 	taskID, err := Task.Create(userID, &request.Task{
 		Name:        rand.Username(),
-		Cron:        "@every 3m",
 		BashContent: "sleep 1",
 		Description: "",
 	})

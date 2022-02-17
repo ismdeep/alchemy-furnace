@@ -1,9 +1,10 @@
 package main
 
 import (
-	_ "github.com/ismdeep/alchemy-furnace/api"
+	"github.com/ismdeep/alchemy-furnace/api"
+	_ "github.com/ismdeep/alchemy-furnace/cron"
 )
 
 func main() {
-	select {}
+	api.Run()
 }

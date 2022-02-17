@@ -8,6 +8,9 @@ type Run struct {
 	ExecutorID  string
 	TaskID      uint
 	Task        Task
+	TriggerID   uint
+	Trigger     Trigger
+	TriggerName string
 	TriggerType int       `gorm:"type:tinyint;not null;default 0;"` // 触发类型， 0定时任务自动触发 1手动执行
 	Name        string    `gorm:"type:varchar(255);not null"`
 	Status      int       `gorm:"type:tinyint;not null"` // 状态， 0Pending 1Running 2Done 3Abort

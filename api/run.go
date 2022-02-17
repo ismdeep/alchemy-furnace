@@ -14,6 +14,13 @@ import (
 	"net/http"
 )
 
+func init() {
+	auth.POST("/api/v1/tasks/:task_id/triggers/:trigger_id/runs", RunCreate) // Start to run a task by trigger
+	auth.GET("/api/v1/tasks/:task_id/runs", RunList)
+	auth.GET("/api/v1/tasks/:task_id/runs/:run_id", RunDetail)
+	noAuth.GET("/api/v1/tasks/:task_id/runs/:run_id/log", RunLog) // Get run log with websocket
+}
+
 // RunList get task run list
 // @Summary get task run list
 // @Author l.jiang.1024@gmail.com
@@ -68,15 +75,18 @@ func RunDetail(c *gin.Context) {
 // @Author l.jiang.1024@gmail.com
 // @Description create a run for task
 // @Tags Task
-// @Router /api/v1/tasks/:task_id/runs [post]
+// @Router /api/v1/tasks/:task_id/triggers/:trigger_id/runs [post]
 func RunCreate(c *gin.Context) {
 	taskID, err1 := parser.ToUint(c.Param("task_id"))
-	if err := util.FirstError(err1); err != nil {
+	triggerID, err2 := parser.ToUint(c.Param("trigger_id"))
+	if err := util.FirstError(err1, err2); err != nil {
 		Fail(c, err.Error())
 		return
 	}
 
-	if err := handler.Run.Start(taskID); err != nil {
+	fmt.Println(taskID)
+
+	if err := handler.Run.Start(triggerID); err != nil {
 		Fail(c, err.Error())
 		return
 	}

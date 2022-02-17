@@ -15,8 +15,6 @@ definitions:
     properties:
       bash_content:
         type: string
-      cron:
-        type: string
       description:
         type: string
       name:
@@ -28,6 +26,8 @@ definitions:
     properties:
       created_at:
         type: string
+      end_time:
+        type: string
       exit_code:
         type: integer
       id:
@@ -38,6 +38,12 @@ definitions:
         type: array
       name:
         type: string
+      start_time:
+        type: string
+      status:
+        type: integer
+      time_elapse_second:
+        type: integer
     type: object
   response.Task:
     properties:
@@ -47,23 +53,29 @@ definitions:
         type: string
       id:
         type: integer
+      last_run:
+        $ref: '#/definitions/response.Run'
       name:
         type: string
     type: object
 info:
   contact: {}
 paths:
+  /api/v1/my/profile:
+    get:
+      description: user profile
+      summary: user profile
+      tags:
+      - User
   /api/v1/sign-in:
     post:
       description: user login
-      responses: {}
       summary: user login
       tags:
       - User
   /api/v1/sign-up:
     post:
       description: user register
-      responses: {}
       summary: user register
       tags:
       - User
@@ -94,8 +106,13 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/request.Task'
-      responses: {}
       summary: creates a task
+      tags:
+      - Task
+  /api/v1/tasks/:id:
+    get:
+      description: get task detail
+      summary: get task detail
       tags:
       - Task
   /api/v1/tasks/:task_id:
@@ -113,21 +130,13 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/request.Task'
-      responses: {}
       summary: updates a task
       tags:
       - Task
   /api/v1/tasks/:task_id/runs:
     get:
       description: get task run list
-      responses: {}
       summary: get task run list
-      tags:
-      - Task
-    post:
-      description: create a run for task
-      responses: {}
-      summary: creates a run for task
       tags:
       - Task
   /api/v1/tasks/:task_id/runs/:run_id:
@@ -139,6 +148,35 @@ paths:
           schema:
             $ref: '#/definitions/response.Run'
       summary: get run detail
+      tags:
+      - Task
+  /api/v1/tasks/:task_id/runs/:run_id/log:
+    get:
+      description: get run log with websocket
+      summary: get run log with websocket
+      tags:
+      - Task
+  /api/v1/tasks/:task_id/triggers:
+    get:
+      description: get trigger list
+      summary: get trigger list
+      tags:
+      - Trigger
+    post:
+      description: add a trigger
+      summary: add a trigger
+      tags:
+      - Trigger
+  /api/v1/tasks/:task_id/triggers/:trigger_id:
+    put:
+      description: update a trigger
+      summary: update a trigger
+      tags:
+      - Trigger
+  /api/v1/tasks/:task_id/triggers/:trigger_id/runs:
+    post:
+      description: create a run for task
+      summary: creates a run for task
       tags:
       - Task
 swagger: "2.0"

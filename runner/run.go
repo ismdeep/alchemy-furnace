@@ -10,13 +10,14 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 )
 
 func Run(runID uint, executorID string) (int, error) {
 	// 0. 获取数据
 	run := &model.Run{}
-	if err := model.DB.Preload("Task").Where("id=?", runID).First(run).Error; err != nil {
+	if err := model.DB.Preload("Task").Preload("Trigger").Preload("Trigger").Where("id=?", runID).First(run).Error; err != nil {
 		return 1, err
 	}
 
@@ -34,6 +35,10 @@ func Run(runID uint, executorID string) (int, error) {
 
 	// 3. 执行命令
 	cmd := exec.Command("bash", "main.bash")
+	cmd.Env = os.Environ()
+	for _, env := range strings.Split(run.Trigger.Environment, "\n") {
+		cmd.Env = append(cmd.Env, env)
+	}
 	cmd.Dir = workDir
 	stdoutPipe, err := cmd.StdoutPipe()
 	if err != nil {

@@ -44,29 +44,20 @@ func Authorization() gin.HandlerFunc {
 	}
 }
 
+var eng *gin.Engine
+var noAuth *gin.RouterGroup
+var auth gin.IRoutes
+
 func init() {
 	gin.SetMode(gin.ReleaseMode)
-	eng := gin.Default()
+	eng = gin.Default()
+	noAuth = eng.Group("")
+	auth = eng.Group("").Use(Authorization())
+}
 
-	noAuth := eng.Group("")
-	noAuth.POST("/api/v1/sign-up", UserRegister)
-	noAuth.POST("/api/v1/sign-in", UserLogin)
-
-	auth := eng.Group("").Use(Authorization())
-	auth.GET("/api/v1/tasks", TaskList)
-	auth.POST("/api/v1/tasks", TaskCreate)
-	auth.PUT("/api/v1/tasks/:task_id", TaskUpdate)
-	auth.GET("/api/v1/tasks/:task_id", TaskDetail)
-	auth.POST("/api/v1/tasks/:task_id/runs", RunCreate) // Start to run a task
-	auth.GET("/api/v1/tasks/:task_id/runs", RunList)
-	auth.GET("/api/v1/tasks/:task_id/runs/:run_id", RunDetail)
-	noAuth.GET("/api/v1/tasks/:task_id/runs/:run_id/log", RunLog) // Get run log with websocket
-	auth.GET("/api/v1/my/profile", UserMyProfile)                 // get login user profile
-
-	log.Info("main", log.String("info", "started to listening"), log.String("bind", config.Config.Bind))
-	go func() {
-		if err := eng.Run(config.Config.Bind); err != nil {
-			panic(err)
-		}
-	}()
+func Run() {
+	log.Info("main", log.String("info", "started to listening"), log.String("bind", config.Bind))
+	if err := eng.Run(config.Bind); err != nil {
+		panic(err)
+	}
 }

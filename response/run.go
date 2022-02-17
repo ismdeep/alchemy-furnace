@@ -8,6 +8,7 @@ import (
 type Run struct {
 	ID               uint              `json:"id"`
 	Name             string            `json:"name"`
+	TriggerName      string            `json:"trigger_name"`
 	Status           int               `json:"status"`
 	ExitCode         int               `json:"exit_code"`
 	Logs             []executor.ExeLog `json:"logs"`

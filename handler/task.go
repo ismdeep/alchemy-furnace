@@ -20,7 +20,6 @@ func (receiver *taskHandler) Create(userID uint, req *request.Task) (uint, error
 	item := &model.Task{
 		Name:        req.Name,
 		UserID:      userID,
-		Cron:        req.Cron,
 		RunOn:       req.RunOn,
 		BashContent: req.BashContent,
 		Description: req.Description,
@@ -38,7 +37,6 @@ func (receiver *taskHandler) Update(taskID uint, req *request.Task) error {
 	}
 
 	task.Name = req.Name
-	task.Cron = req.Cron
 	task.BashContent = req.BashContent
 	if err := model.DB.Save(task).Error; err != nil {
 		return err
@@ -61,24 +59,23 @@ func (receiver *taskHandler) List(userID uint) []*response.Task {
 			ID:      task.ID,
 			Name:    task.Name,
 			Bash:    task.BashContent,
-			Cron:    task.Cron,
 			LastRun: nil,
 		}
 
 		// 获取最后一次运行记录
-		run := model.Run{}
-		err := model.DB.Where("task_id=?", task.ID).Order("id desc").First(&run).Error
-		if err != nil {
+		lastRuns := make([]model.Run, 0)
+		model.DB.Where("task_id=?", task.ID).Order("id desc").Find(&lastRuns)
+		if len(lastRuns) <= 0 {
 			result.LastRun = nil
 		} else {
 			result.LastRun = &response.Run{
-				ID:        run.ID,
+				ID:        lastRuns[0].ID,
 				Name:      "",
-				Status:    run.Status,
-				ExitCode:  run.ExitCode,
-				CreatedAt: run.CreatedAt,
-				StartTime: run.StartTime,
-				EndTime:   run.EndTime,
+				Status:    lastRuns[0].Status,
+				ExitCode:  lastRuns[0].ExitCode,
+				CreatedAt: lastRuns[0].CreatedAt,
+				StartTime: lastRuns[0].StartTime,
+				EndTime:   lastRuns[0].EndTime,
 			}
 		}
 
@@ -98,6 +95,5 @@ func (receiver *taskHandler) Detail(taskID uint) (*response.Task, error) {
 		ID:   task.ID,
 		Name: task.Name,
 		Bash: task.BashContent,
-		Cron: task.Cron,
 	}, nil
 }

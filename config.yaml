@@ -1,2 +1,0 @@
-db:
-  dsn: 'root:liandanlu123456@tcp(127.0.0.1:10006)/alchemy_furnace?parseTime=true&loc=Local&charset=utf8mb4,utf8'
