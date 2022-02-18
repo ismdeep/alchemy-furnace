@@ -35,7 +35,7 @@ func Test_User_Register(t *testing.T) {
 
 func Benchmark_User_Register(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := User.Register(rand.HexStr(32), rand.HexStr(32))
+		_, err := User.Register(rand.Username(), rand.HexStr(32))
 		assert.NoError(b, err)
 	}
 }

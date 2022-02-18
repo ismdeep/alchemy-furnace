@@ -27,7 +27,7 @@ func Test_taskHandler_Create(t *testing.T) {
 				req: &request.Task{
 					Name:        "1",
 					BashContent: "sleep 10",
-					Description: "noting to describe",
+					Description: "nothing to describe",
 				},
 			},
 			wantErr: false,

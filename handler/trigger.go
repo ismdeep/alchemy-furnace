@@ -15,7 +15,7 @@ var Trigger = &triggerHandler{}
 var TriggerChan chan model.Trigger
 
 func init() {
-	TriggerChan = make(chan model.Trigger)
+	TriggerChan = make(chan model.Trigger, 65535)
 }
 
 func (receiver *triggerHandler) Add(userID uint, taskID uint, req *request.Trigger) (uint, error) {
