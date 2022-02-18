@@ -21,12 +21,12 @@ func init() {
 func UserRegister(c *gin.Context) {
 	req := &request.User{}
 	if err := c.BindJSON(req); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
 	if _, err := handler.User.Register(req.Username, req.Password); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
@@ -42,13 +42,13 @@ func UserRegister(c *gin.Context) {
 func UserLogin(c *gin.Context) {
 	req := &request.User{}
 	if err := c.BindJSON(req); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
 	respData, err := handler.User.Login(req.Username, req.Password)
 	if err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
@@ -65,7 +65,7 @@ func UserMyProfile(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	userProfile, err := handler.User.GetProfile(userID)
 	if err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 

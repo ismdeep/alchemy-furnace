@@ -15,9 +15,9 @@ import (
 )
 
 func init() {
-	auth.POST("/api/v1/tasks/:task_id/triggers/:trigger_id/runs", RunCreate) // Start to run a task by trigger
-	auth.GET("/api/v1/tasks/:task_id/runs", RunList)
-	auth.GET("/api/v1/tasks/:task_id/runs/:run_id", RunDetail)
+	permCheckAuth.POST("/api/v1/tasks/:task_id/triggers/:trigger_id/runs", RunCreate) // Start to run a task by trigger
+	permCheckAuth.GET("/api/v1/tasks/:task_id/runs", RunList)
+	permCheckAuth.GET("/api/v1/tasks/:task_id/runs/:run_id", RunDetail)
 	noAuth.GET("/api/v1/tasks/:task_id/runs/:run_id/log", RunLog) // Get run log with websocket
 }
 
@@ -32,13 +32,13 @@ func RunList(c *gin.Context) {
 	page, err2 := parser.ToInt(c.DefaultQuery("page", "1"))
 	size, err3 := parser.ToInt(c.DefaultQuery("size", "10"))
 	if err := util.FirstError(err1, err2, err3); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
 	tasks, total, err := handler.Run.List(taskID, page, size)
 	if err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
@@ -56,13 +56,13 @@ func RunDetail(c *gin.Context) {
 	taskID, err1 := parser.ToUint(c.Param("task_id"))
 	runID, err2 := parser.ToUint(c.Param("run_id"))
 	if err := util.FirstError(err1, err2); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
 	respData, err := handler.Run.Detail(taskID, runID)
 	if err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
@@ -80,14 +80,14 @@ func RunCreate(c *gin.Context) {
 	taskID, err1 := parser.ToUint(c.Param("task_id"))
 	triggerID, err2 := parser.ToUint(c.Param("trigger_id"))
 	if err := util.FirstError(err1, err2); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
 	fmt.Println(taskID)
 
 	if err := handler.Run.Start(triggerID); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
@@ -104,7 +104,7 @@ func RunLog(c *gin.Context) {
 	taskID, err1 := parser.ToUint(c.Param("task_id"))
 	runID, err2 := parser.ToUint(c.Param("run_id"))
 	if err := util.FirstError(err1, err2); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
