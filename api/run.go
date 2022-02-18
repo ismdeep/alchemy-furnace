@@ -108,7 +108,6 @@ func RunLog(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(taskID, runID)
 	var upGrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
@@ -132,6 +131,12 @@ func RunLog(c *gin.Context) {
 		return
 	}
 
+	if run.TaskID != taskID {
+		_ = ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("[ERROR] bad request\n")))
+		_ = ws.WriteMessage(websocket.CloseMessage, []byte(""))
+		return
+	}
+
 	if run.Status == model.RunEnumsStatusRunning {
 		listener, listenerID, err := executor.GenerateListener(run.ExecutorID)
 		if err != nil {
@@ -142,6 +147,9 @@ func RunLog(c *gin.Context) {
 
 		for {
 			v := <-listener
+			if v == nil {
+				break
+			}
 			if v.Line == executor.EOF {
 				break
 			}

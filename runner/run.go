@@ -84,6 +84,8 @@ func Run(runID uint, executorID string) (int, error) {
 		return 1, err
 	}
 
+	executor.PushMsg(executorID, executor.TypeStdout, executor.EOF)
+
 	// 4. 返回数据
 	return cmd.ProcessState.ExitCode(), nil
 }

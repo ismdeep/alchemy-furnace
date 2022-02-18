@@ -97,3 +97,21 @@ func (receiver *taskHandler) Detail(taskID uint) (*response.Task, error) {
 		Bash: task.BashContent,
 	}, nil
 }
+
+func (receiver *taskHandler) Delete(taskID uint) error {
+	var tasks []model.Task
+	if err := model.DB.Where("id=?", taskID).Find(&tasks).Error; err != nil {
+		return err
+	}
+
+	if len(tasks) <= 0 {
+		return errors.New("task not found")
+	}
+
+	task := tasks[0]
+	if err := model.DB.Delete(&task).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
