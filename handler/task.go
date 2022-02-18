@@ -5,6 +5,7 @@ import (
 	"github.com/ismdeep/alchemy-furnace/model"
 	"github.com/ismdeep/alchemy-furnace/request"
 	"github.com/ismdeep/alchemy-furnace/response"
+	"time"
 )
 
 type taskHandler struct {
@@ -23,6 +24,8 @@ func (receiver *taskHandler) Create(userID uint, req *request.Task) (uint, error
 		RunOn:       req.RunOn,
 		BashContent: req.BashContent,
 		Description: req.Description,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 
 	model.DB.Create(item)
@@ -38,6 +41,7 @@ func (receiver *taskHandler) Update(taskID uint, req *request.Task) error {
 
 	task.Name = req.Name
 	task.BashContent = req.BashContent
+	task.UpdatedAt = time.Now()
 	if err := model.DB.Save(task).Error; err != nil {
 		return err
 	}
