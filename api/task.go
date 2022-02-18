@@ -11,9 +11,9 @@ import (
 func init() {
 	auth.GET("/api/v1/tasks", TaskList)
 	auth.POST("/api/v1/tasks", TaskCreate)
-	auth.PUT("/api/v1/tasks/:task_id", TaskUpdate)
-	auth.GET("/api/v1/tasks/:task_id", TaskDetail)
-	auth.DELETE("/api/v1/tasks/:task_id", TaskDelete)
+	permCheckAuth.PUT("/api/v1/tasks/:task_id", TaskUpdate)
+	permCheckAuth.GET("/api/v1/tasks/:task_id", TaskDetail)
+	permCheckAuth.DELETE("/api/v1/tasks/:task_id", TaskDelete)
 }
 
 // TaskList get task list
@@ -40,12 +40,12 @@ func TaskCreate(c *gin.Context) {
 	req := &request.Task{}
 	err1 := c.BindJSON(req)
 	if err := util.FirstError(err1); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
 	if _, err := handler.Task.Create(c.GetUint("user_id"), req); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
@@ -65,12 +65,12 @@ func TaskUpdate(c *gin.Context) {
 	err1 := c.BindJSON(req)
 	taskID, err2 := parser.ToUint(c.Param("task_id"))
 	if err := util.FirstError(err1, err2); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
 	if err := handler.Task.Update(taskID, req); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
@@ -86,13 +86,13 @@ func TaskUpdate(c *gin.Context) {
 func TaskDetail(c *gin.Context) {
 	taskID, err1 := parser.ToUint(c.Param("task_id"))
 	if err := util.FirstError(err1); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
 	respData, err := handler.Task.Detail(taskID)
 	if err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
@@ -108,12 +108,12 @@ func TaskDetail(c *gin.Context) {
 func TaskDelete(c *gin.Context) {
 	taskID, err1 := parser.ToUint(c.Param("task_id"))
 	if err := util.FirstError(err1); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
 	if err := handler.Task.Delete(taskID); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 

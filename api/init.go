@@ -2,11 +2,14 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/ismdeep/alchemy-furnace/config"
+	"github.com/ismdeep/alchemy-furnace/model"
 	"github.com/ismdeep/alchemy-furnace/schema"
 	"github.com/ismdeep/jwt"
 	"github.com/ismdeep/log"
+	"github.com/ismdeep/parser"
 )
 
 func Authorization() gin.HandlerFunc {
@@ -44,15 +47,70 @@ func Authorization() gin.HandlerFunc {
 	}
 }
 
+func PermissionCheck() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userID := c.GetUint("user_id")
+		nodeID, _ := parser.ToUint(c.Param("node_id"))
+		taskID, _ := parser.ToUint(c.Param("task_id"))
+
+		var node *model.Node
+		var task *model.Task
+
+		if nodeID != 0 {
+			var nodes []model.Node
+			if err := model.DB.Where("id=?", nodeID).Find(&nodes).Error; err != nil {
+				Fail(c, err)
+				c.Abort()
+				return
+			}
+			if len(nodes) <= 0 {
+				Fail(c, errors.New("node not found"))
+				c.Abort()
+				return
+			}
+			node = &nodes[0]
+		}
+
+		if taskID != 0 {
+			var tasks []model.Task
+			if err := model.DB.Where("id=?", taskID).Find(&tasks).Error; err != nil {
+				Fail(c, err)
+				c.Abort()
+				return
+			}
+			if len(tasks) <= 0 {
+				Fail(c, errors.New("task not found"))
+				c.Abort()
+				return
+			}
+			task = &tasks[0]
+		}
+
+		if node != nil && node.UserID != userID {
+			Fail(c, errors.New("permission denied"))
+			c.Abort()
+			return
+		}
+
+		if task != nil && task.UserID != userID {
+			Fail(c, errors.New("permission denied"))
+			c.Abort()
+			return
+		}
+	}
+}
+
 var eng *gin.Engine
 var noAuth *gin.RouterGroup
 var auth gin.IRoutes
+var permCheckAuth gin.IRoutes
 
 func init() {
 	gin.SetMode(gin.ReleaseMode)
 	eng = gin.Default()
 	noAuth = eng.Group("")
 	auth = eng.Group("").Use(Authorization())
+	permCheckAuth = auth.Use(PermissionCheck())
 }
 
 func Run() {

@@ -9,10 +9,10 @@ import (
 )
 
 func init() {
-	auth.GET("/api/v1/tasks/:task_id/triggers", TriggerList)
-	auth.POST("/api/v1/tasks/:task_id/triggers", TriggerAdd)
-	auth.PUT("/api/v1/tasks/:task_id/triggers/:trigger_id", TriggerUpdate)
-	auth.DELETE("/api/v1/tasks/:task_id/triggers/:trigger_id", TriggerDelete)
+	permCheckAuth.GET("/api/v1/tasks/:task_id/triggers", TriggerList)
+	permCheckAuth.POST("/api/v1/tasks/:task_id/triggers", TriggerAdd)
+	permCheckAuth.PUT("/api/v1/tasks/:task_id/triggers/:trigger_id", TriggerUpdate)
+	permCheckAuth.DELETE("/api/v1/tasks/:task_id/triggers/:trigger_id", TriggerDelete)
 }
 
 // TriggerAdd add a trigger
@@ -26,12 +26,12 @@ func TriggerAdd(c *gin.Context) {
 	req := &request.Trigger{}
 	err2 := c.BindJSON(req)
 	if err := util.FirstError(err1, err2); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
 	if _, err := handler.Trigger.Add(c.GetUint("user_id"), taskID, req); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
@@ -47,13 +47,13 @@ func TriggerAdd(c *gin.Context) {
 func TriggerList(c *gin.Context) {
 	taskID, err1 := parser.ToUint(c.Param("task_id"))
 	if err := util.FirstError(err1); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
 	respData, err := handler.Trigger.List(c.GetUint("user_id"), taskID)
 	if err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
@@ -72,13 +72,13 @@ func TriggerUpdate(c *gin.Context) {
 	req := &request.Trigger{}
 	err3 := c.BindJSON(req)
 	if err := util.FirstError(err1, err2, err3); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
 	err := handler.Trigger.Update(c.GetUint("user_id"), taskID, triggerID, req)
 	if err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
@@ -95,11 +95,11 @@ func TriggerDelete(c *gin.Context) {
 	taskID, err1 := parser.ToUint(c.Param("task_id"))
 	triggerID, err2 := parser.ToUint(c.Param("trigger_id"))
 	if err := util.FirstError(err1, err2); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 	if err := handler.Trigger.Delete(taskID, triggerID); err != nil {
-		Fail(c, err.Error())
+		Fail(c, err)
 		return
 	}
 
