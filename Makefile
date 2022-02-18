@@ -20,12 +20,12 @@ swag-doc:
 	swag init
 
 .PHONY: docker-local
-docker-local:
-	docker build -t ismdeep/alchemy-furnace:local .
-
-.PHONY: docker-build
-docker-build:
-	docker build -t ismdeep/alchemy-furnace:latest .
+docker:
+	docker buildx build \
+		--platform linux/amd64 \
+		--pull \
+		--push \
+		-t hub.deepin.com/ljiang/alchemy-furnace:latest .
 
 .PHONY: vendor
 vendor:

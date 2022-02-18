@@ -13,6 +13,7 @@ func init() {
 	auth.POST("/api/v1/tasks", TaskCreate)
 	auth.PUT("/api/v1/tasks/:task_id", TaskUpdate)
 	auth.GET("/api/v1/tasks/:task_id", TaskDetail)
+	auth.DELETE("/api/v1/tasks/:task_id", TaskDelete)
 }
 
 // TaskList get task list
@@ -96,4 +97,25 @@ func TaskDetail(c *gin.Context) {
 	}
 
 	Success(c, "", respData)
+}
+
+// TaskDelete delete a task
+// @Summary delete a task
+// @Author l.jiang.1024@gmail.com
+// @Description delete a task
+// @Tags Task
+// @Router /api/v1/tasks/:task_id [delete]
+func TaskDelete(c *gin.Context) {
+	taskID, err1 := parser.ToUint(c.Param("task_id"))
+	if err := util.FirstError(err1); err != nil {
+		Fail(c, err.Error())
+		return
+	}
+
+	if err := handler.Task.Delete(taskID); err != nil {
+		Fail(c, err.Error())
+		return
+	}
+
+	Success(c, "", nil)
 }
