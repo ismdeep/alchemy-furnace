@@ -19,8 +19,8 @@ func init() {
 // @Tags User
 // @Router /api/v1/sign-up [post]
 func UserRegister(c *gin.Context) {
-	req := &request.User{}
-	if err := c.BindJSON(req); err != nil {
+	var req request.User
+	if err := c.BindJSON(&req); err != nil {
 		Fail(c, err)
 		return
 	}
@@ -40,8 +40,10 @@ func UserRegister(c *gin.Context) {
 // @Tags User
 // @Router /api/v1/sign-in [post]
 func UserLogin(c *gin.Context) {
-	req := &request.User{}
-	if err := c.BindJSON(req); err != nil {
+	var req request.User
+	{
+	}
+	if err := c.BindJSON(&req); err != nil {
 		Fail(c, err)
 		return
 	}
@@ -62,12 +64,11 @@ func UserLogin(c *gin.Context) {
 // @Tags User
 // @Router /api/v1/my/profile [get]
 func UserMyProfile(c *gin.Context) {
-	userID := c.GetUint("user_id")
-	userProfile, err := handler.User.GetProfile(userID)
+	respData, err := handler.User.GetProfile(c.GetUint("user_id"))
 	if err != nil {
 		Fail(c, err)
 		return
 	}
 
-	Success(c, "", userProfile)
+	Success(c, "", respData)
 }

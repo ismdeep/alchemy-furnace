@@ -2,6 +2,7 @@ package runner
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"github.com/ismdeep/alchemy-furnace/executor"
 	"github.com/ismdeep/alchemy-furnace/model"
@@ -21,34 +22,89 @@ func Run(runID uint, executorID string) (int, error) {
 		return 1, err
 	}
 
-	// 1. 创建目录
+	// 1. 选取运行节点
+	var nodes []model.Node
+	if err := model.DB.Where("user_id=?", run.Task.UserID).Find(&nodes).Error; err != nil {
+		return 1, err
+	}
+	if len(nodes) <= 0 {
+		return 1, errors.New("no available node")
+	}
+	node := nodes[rand.Intn(len(nodes))]
+
+	// 2. 准备数据
 	randKey := rand.TimeBasedFormat("{datetime}-{hex}", rand.WithHexLen(32))
 	workDir := fmt.Sprintf("/tmp/%v", randKey)
 	if err := os.MkdirAll(workDir, 0777); err != nil {
 		return 1, err
 	}
-
-	// 2. 写入脚本
+	// 2.1 写入脚本
 	if err := ioutil.WriteFile(fmt.Sprintf("%v/main.bash", workDir), []byte(run.Task.BashContent), 0777); err != nil {
 		return 1, err
 	}
+	if err := ioutil.WriteFile(fmt.Sprintf("%v/ssh-key", workDir), []byte(node.SSHKey), 0600); err != nil {
+		return 1, err
+	}
+	// 2.2 转化pem文件
+	//cmd0 := exec.Command("ssh-keygen", "-f", "ssh-key", "-e", "-m", "pem")
+	//cmd0.Dir = workDir
+	//if err := cmd0.Run(); err != nil {
+	//	return 1, err
+	//}
+	// 2.2 创建远程服务器目录
+	cmd1 := exec.Command(
+		"ssh",
+		"-i",
+		"ssh-key",
+		fmt.Sprintf("%v@%v", node.Username, node.Host),
+		"-p",
+		fmt.Sprintf("%v", node.Port),
+		fmt.Sprintf("mkdir -p %v", workDir))
+	cmd1.Dir = workDir
+	cmd1.Stdout = os.Stdout
+	cmd1.Stderr = os.Stderr
+	if err := cmd1.Run(); err != nil {
+		return 1, err
+	}
+	fmt.Println("cmd1 finished")
+	// 2.3 拷贝执行脚本
+	cmd2 := exec.Command(
+		"scp",
+		"-P",
+		fmt.Sprintf("%v", node.Port),
+		"-i",
+		"ssh-key",
+		"main.bash",
+		fmt.Sprintf("%v@%v:%v", node.Username, node.Host, workDir),
+	)
+	cmd2.Stdout = os.Stdout
+	cmd2.Stderr = os.Stderr
+	cmd2.Dir = workDir
+	if err := cmd2.Run(); err != nil {
+		return 1, err
+	}
+	fmt.Println("cmd2 finished")
 
 	// 3. 执行命令
-	cmd := exec.Command("bash", "main.bash")
-	cmd.Env = os.Environ()
+	cmd3 := exec.Command("ssh",
+		fmt.Sprintf("%v@%v", node.Username, node.Host),
+		"-p",
+		fmt.Sprintf("%v", node.Port),
+		fmt.Sprintf("cd %v && bash main.bash", workDir))
+	cmd3.Env = os.Environ()
 	for _, env := range strings.Split(run.Trigger.Environment, "\n") {
-		cmd.Env = append(cmd.Env, env)
+		cmd3.Env = append(cmd3.Env, env)
 	}
-	cmd.Dir = workDir
-	stdoutPipe, err := cmd.StdoutPipe()
+	cmd3.Dir = workDir
+	stdoutPipe, err := cmd3.StdoutPipe()
 	if err != nil {
 		return 1, err
 	}
-	stderrPipe, err := cmd.StderrPipe()
+	stderrPipe, err := cmd3.StderrPipe()
 	if err != nil {
 		return 1, err
 	}
-	if err := cmd.Start(); err != nil {
+	if err := cmd3.Start(); err != nil {
 		return 1, err
 	}
 	wg := &sync.WaitGroup{}
@@ -80,12 +136,12 @@ func Run(runID uint, executorID string) (int, error) {
 	go listenFunc(stdoutPipe, executor.TypeStdout)
 	go listenFunc(stderrPipe, executor.TypeStderr)
 	wg.Wait()
-	if err := cmd.Wait(); err != nil {
+	if err := cmd3.Wait(); err != nil {
 		return 1, err
 	}
 
 	executor.PushMsg(executorID, executor.TypeStdout, executor.EOF)
 
 	// 4. 返回数据
-	return cmd.ProcessState.ExitCode(), nil
+	return cmd3.ProcessState.ExitCode(), nil
 }

@@ -63,7 +63,7 @@ func (receiver *runHandler) Detail(taskID uint, runID uint) (*response.Run, erro
 	}, nil
 }
 
-func (receiver *runHandler) Start(triggerID uint) error {
+func (receiver *runHandler) Start(taskID uint, triggerID uint) error {
 	// 1. check triggerID
 	var triggers []model.Trigger
 	if err := model.DB.Preload("Task").Where("id=?", triggerID).Find(&triggers).Error; err != nil {
@@ -73,6 +73,9 @@ func (receiver *runHandler) Start(triggerID uint) error {
 		return errors.New("trigger is not exists")
 	}
 	trigger := triggers[0]
+	if trigger.TaskID != taskID {
+		return errors.New("permission denied")
+	}
 
 	// 2. write info
 	executorID := executor.GenerateExecutor()

@@ -51,12 +51,17 @@ func PermissionCheck() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID := c.GetUint("user_id")
 		nodeID, _ := parser.ToUint(c.Param("node_id"))
+		tokenID, _ := parser.ToUint(c.Param("token_id"))
 		taskID, _ := parser.ToUint(c.Param("task_id"))
+		triggerID, _ := parser.ToUint(c.Param("trigger_id"))
+		runID, _ := parser.ToUint(c.Param("run_id"))
 
 		var node *model.Node
 		var task *model.Task
+		var token *model.Token
 
 		if nodeID != 0 {
+			c.Set("node_id", nodeID)
 			var nodes []model.Node
 			if err := model.DB.Where("id=?", nodeID).Find(&nodes).Error; err != nil {
 				Fail(c, err)
@@ -72,6 +77,7 @@ func PermissionCheck() gin.HandlerFunc {
 		}
 
 		if taskID != 0 {
+			c.Set("task_id", taskID)
 			var tasks []model.Task
 			if err := model.DB.Where("id=?", taskID).Find(&tasks).Error; err != nil {
 				Fail(c, err)
@@ -86,6 +92,31 @@ func PermissionCheck() gin.HandlerFunc {
 			task = &tasks[0]
 		}
 
+		if tokenID != 0 {
+			c.Set("token_id", tokenID)
+			var tokens []model.Token
+			if err := model.DB.Where("id=?", tokenID).Find(&tokens).Error; err != nil {
+				Fail(c, err)
+				c.Abort()
+				return
+			}
+
+			if len(tokens) <= 0 {
+				Fail(c, errors.New("token not found"))
+				c.Abort()
+				return
+			}
+			token = &tokens[0]
+		}
+
+		if triggerID != 0 {
+			c.Set("trigger_id", triggerID)
+		}
+
+		if runID != 0 {
+			c.Set("run_id", runID)
+		}
+
 		if node != nil && node.UserID != userID {
 			Fail(c, errors.New("permission denied"))
 			c.Abort()
@@ -93,6 +124,12 @@ func PermissionCheck() gin.HandlerFunc {
 		}
 
 		if task != nil && task.UserID != userID {
+			Fail(c, errors.New("permission denied"))
+			c.Abort()
+			return
+		}
+
+		if token != nil && token.UserID != userID {
 			Fail(c, errors.New("permission denied"))
 			c.Abort()
 			return

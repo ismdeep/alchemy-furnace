@@ -4,8 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ismdeep/alchemy-furnace/handler"
 	"github.com/ismdeep/alchemy-furnace/request"
-	"github.com/ismdeep/alchemy-furnace/util"
-	"github.com/ismdeep/parser"
 )
 
 func init() {
@@ -37,14 +35,13 @@ func TaskList(c *gin.Context) {
 // @Param req body	request.Task true "JSON数据"
 // @Router	/api/v1/tasks [post]
 func TaskCreate(c *gin.Context) {
-	req := &request.Task{}
-	err1 := c.BindJSON(req)
-	if err := util.FirstError(err1); err != nil {
+	var req request.Task
+	if err := c.BindJSON(&req); err != nil {
 		Fail(c, err)
 		return
 	}
 
-	if _, err := handler.Task.Create(c.GetUint("user_id"), req); err != nil {
+	if _, err := handler.Task.Create(c.GetUint("user_id"), &req); err != nil {
 		Fail(c, err)
 		return
 	}
@@ -61,15 +58,13 @@ func TaskCreate(c *gin.Context) {
 // @Param req body	request.Task true "JSON数据"
 // @Router /api/v1/tasks/:task_id [put]
 func TaskUpdate(c *gin.Context) {
-	req := &request.Task{}
-	err1 := c.BindJSON(req)
-	taskID, err2 := parser.ToUint(c.Param("task_id"))
-	if err := util.FirstError(err1, err2); err != nil {
+	var req request.Task
+	if err := c.BindJSON(&req); err != nil {
 		Fail(c, err)
 		return
 	}
 
-	if err := handler.Task.Update(taskID, req); err != nil {
+	if err := handler.Task.Update(c.GetUint("task_id"), &req); err != nil {
 		Fail(c, err)
 		return
 	}
@@ -84,13 +79,7 @@ func TaskUpdate(c *gin.Context) {
 // @Tags Task
 // @Router /api/v1/tasks/:id [get]
 func TaskDetail(c *gin.Context) {
-	taskID, err1 := parser.ToUint(c.Param("task_id"))
-	if err := util.FirstError(err1); err != nil {
-		Fail(c, err)
-		return
-	}
-
-	respData, err := handler.Task.Detail(taskID)
+	respData, err := handler.Task.Detail(c.GetUint("task_id"))
 	if err != nil {
 		Fail(c, err)
 		return
@@ -106,13 +95,7 @@ func TaskDetail(c *gin.Context) {
 // @Tags Task
 // @Router /api/v1/tasks/:task_id [delete]
 func TaskDelete(c *gin.Context) {
-	taskID, err1 := parser.ToUint(c.Param("task_id"))
-	if err := util.FirstError(err1); err != nil {
-		Fail(c, err)
-		return
-	}
-
-	if err := handler.Task.Delete(taskID); err != nil {
+	if err := handler.Task.Delete(c.GetUint("task_id")); err != nil {
 		Fail(c, err)
 		return
 	}
