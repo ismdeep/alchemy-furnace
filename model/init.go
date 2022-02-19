@@ -22,6 +22,7 @@ func init() {
 		&Run{},
 		&Node{},
 		&Trigger{},
+		&Token{},
 	); err != nil {
 		log.Error("model", log.FieldErr(err))
 	}

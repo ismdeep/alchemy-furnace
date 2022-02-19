@@ -9,11 +9,12 @@ import (
 )
 
 type Job struct {
+	TaskID    uint
 	TriggerID uint
 }
 
 func (receiver Job) Run() {
-	if err := handler.Run.Start(receiver.TriggerID); err != nil {
+	if err := handler.Run.Start(receiver.TaskID, receiver.TriggerID); err != nil {
 		log.Error("Cron", log.Any("trigger_id", receiver.TriggerID), log.FieldErr(err))
 	}
 }
@@ -31,7 +32,7 @@ func Push(trigger model.Trigger) {
 		return
 	}
 
-	id, err := c.AddJob(trigger.Cron, Job{TriggerID: trigger.ID})
+	id, err := c.AddJob(trigger.Cron, Job{TaskID: trigger.TaskID, TriggerID: trigger.ID})
 	if err != nil {
 		log.Error("cron", log.FieldErr(err))
 	}

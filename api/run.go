@@ -28,15 +28,14 @@ func init() {
 // @Tags Task
 // @Router /api/v1/tasks/:task_id/runs [get]
 func RunList(c *gin.Context) {
-	taskID, err1 := parser.ToUint(c.Param("task_id"))
-	page, err2 := parser.ToInt(c.DefaultQuery("page", "1"))
-	size, err3 := parser.ToInt(c.DefaultQuery("size", "10"))
-	if err := util.FirstError(err1, err2, err3); err != nil {
+	page, err1 := parser.ToInt(c.DefaultQuery("page", "1"))
+	size, err2 := parser.ToInt(c.DefaultQuery("size", "10"))
+	if err := util.FirstError(err1, err2); err != nil {
 		Fail(c, err)
 		return
 	}
 
-	tasks, total, err := handler.Run.List(taskID, page, size)
+	tasks, total, err := handler.Run.List(c.GetUint("task_id"), page, size)
 	if err != nil {
 		Fail(c, err)
 		return
@@ -53,14 +52,7 @@ func RunList(c *gin.Context) {
 // @Success 200 {object} response.Run
 // @Router /api/v1/tasks/:task_id/runs/:run_id [get]
 func RunDetail(c *gin.Context) {
-	taskID, err1 := parser.ToUint(c.Param("task_id"))
-	runID, err2 := parser.ToUint(c.Param("run_id"))
-	if err := util.FirstError(err1, err2); err != nil {
-		Fail(c, err)
-		return
-	}
-
-	respData, err := handler.Run.Detail(taskID, runID)
+	respData, err := handler.Run.Detail(c.GetUint("task_id"), c.GetUint("run_id"))
 	if err != nil {
 		Fail(c, err)
 		return
@@ -77,16 +69,7 @@ func RunDetail(c *gin.Context) {
 // @Tags Task
 // @Router /api/v1/tasks/:task_id/triggers/:trigger_id/runs [post]
 func RunCreate(c *gin.Context) {
-	taskID, err1 := parser.ToUint(c.Param("task_id"))
-	triggerID, err2 := parser.ToUint(c.Param("trigger_id"))
-	if err := util.FirstError(err1, err2); err != nil {
-		Fail(c, err)
-		return
-	}
-
-	fmt.Println(taskID)
-
-	if err := handler.Run.Start(triggerID); err != nil {
+	if err := handler.Run.Start(c.GetUint("task_id"), c.GetUint("trigger_id")); err != nil {
 		Fail(c, err)
 		return
 	}
@@ -101,12 +84,8 @@ func RunCreate(c *gin.Context) {
 // @Tags Task
 // @Router /api/v1/tasks/:task_id/runs/:run_id/log [get]
 func RunLog(c *gin.Context) {
-	taskID, err1 := parser.ToUint(c.Param("task_id"))
-	runID, err2 := parser.ToUint(c.Param("run_id"))
-	if err := util.FirstError(err1, err2); err != nil {
-		Fail(c, err)
-		return
-	}
+	runID, _ := parser.ToUint(c.Param("run_id"))
+	taskID, _ := parser.ToUint(c.Param("task_id"))
 
 	var upGrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
@@ -124,12 +103,18 @@ func RunLog(c *gin.Context) {
 	}()
 
 	// 1. 获取日志信息
-	run := &model.Run{}
-	if err := model.DB.Where("id=?", runID).First(run).Error; err != nil {
+	var runs []model.Run
+	if err := model.DB.Where("id=?", runID).Find(&runs).Error; err != nil {
 		_ = ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("[ERROR] %v\n", err.Error())))
 		_ = ws.WriteMessage(websocket.CloseMessage, []byte(""))
 		return
 	}
+	if len(runs) <= 0 {
+		_ = ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("[ERROR] record not found\n")))
+		_ = ws.WriteMessage(websocket.CloseMessage, []byte(""))
+		return
+	}
+	run := runs[0]
 
 	if run.TaskID != taskID {
 		_ = ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("[ERROR] bad request\n")))

@@ -4,8 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ismdeep/alchemy-furnace/handler"
 	"github.com/ismdeep/alchemy-furnace/request"
-	"github.com/ismdeep/alchemy-furnace/util"
-	"github.com/ismdeep/parser"
 )
 
 func init() {
@@ -22,15 +20,13 @@ func init() {
 // @Tags Trigger
 // @Router	/api/v1/tasks/:task_id/triggers [post]
 func TriggerAdd(c *gin.Context) {
-	taskID, err1 := parser.ToUint(c.Param("task_id"))
-	req := &request.Trigger{}
-	err2 := c.BindJSON(req)
-	if err := util.FirstError(err1, err2); err != nil {
+	var req request.Trigger
+	if err := c.BindJSON(&req); err != nil {
 		Fail(c, err)
 		return
 	}
 
-	if _, err := handler.Trigger.Add(c.GetUint("user_id"), taskID, req); err != nil {
+	if _, err := handler.Trigger.Add(c.GetUint("user_id"), c.GetUint("task_id"), &req); err != nil {
 		Fail(c, err)
 		return
 	}
@@ -45,13 +41,7 @@ func TriggerAdd(c *gin.Context) {
 // @Tags Trigger
 // @Router /api/v1/tasks/:task_id/triggers [get]
 func TriggerList(c *gin.Context) {
-	taskID, err1 := parser.ToUint(c.Param("task_id"))
-	if err := util.FirstError(err1); err != nil {
-		Fail(c, err)
-		return
-	}
-
-	respData, err := handler.Trigger.List(c.GetUint("user_id"), taskID)
+	respData, err := handler.Trigger.List(c.GetUint("user_id"), c.GetUint("task_id"))
 	if err != nil {
 		Fail(c, err)
 		return
@@ -67,17 +57,13 @@ func TriggerList(c *gin.Context) {
 // @Tags Trigger
 // @Router /api/v1/tasks/:task_id/triggers/:trigger_id [put]
 func TriggerUpdate(c *gin.Context) {
-	taskID, err1 := parser.ToUint(c.Param("task_id"))
-	triggerID, err2 := parser.ToUint(c.Param("trigger_id"))
-	req := &request.Trigger{}
-	err3 := c.BindJSON(req)
-	if err := util.FirstError(err1, err2, err3); err != nil {
+	var req request.Trigger
+	if err := c.BindJSON(&req); err != nil {
 		Fail(c, err)
 		return
 	}
 
-	err := handler.Trigger.Update(c.GetUint("user_id"), taskID, triggerID, req)
-	if err != nil {
+	if err := handler.Trigger.Update(c.GetUint("user_id"), c.GetUint("task_id"), c.GetUint("trigger_id"), &req); err != nil {
 		Fail(c, err)
 		return
 	}
@@ -92,13 +78,7 @@ func TriggerUpdate(c *gin.Context) {
 // @Tags Trigger
 // @Router /api/v1/tasks/:task_id/triggers/:trigger_id [delete]
 func TriggerDelete(c *gin.Context) {
-	taskID, err1 := parser.ToUint(c.Param("task_id"))
-	triggerID, err2 := parser.ToUint(c.Param("trigger_id"))
-	if err := util.FirstError(err1, err2); err != nil {
-		Fail(c, err)
-		return
-	}
-	if err := handler.Trigger.Delete(taskID, triggerID); err != nil {
+	if err := handler.Trigger.Delete(c.GetUint("task_id"), c.GetUint("trigger_id")); err != nil {
 		Fail(c, err)
 		return
 	}
