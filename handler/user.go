@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"github.com/ismdeep/alchemy-furnace/config"
 	"github.com/ismdeep/alchemy-furnace/model"
 	"github.com/ismdeep/alchemy-furnace/response"
 	"github.com/ismdeep/alchemy-furnace/schema"
@@ -16,6 +17,9 @@ type userHandler struct {
 var User = &userHandler{}
 
 func (receiver *userHandler) Register(username string, password string) (uint, error) {
+	if !config.EnableSignUp {
+		return 0, errors.New("sign up was disabled")
+	}
 	exists, err := model.UserStore.UserExists(username)
 	if err != nil {
 		return 0, errors.New("system error")

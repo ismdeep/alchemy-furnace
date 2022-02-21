@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/ismdeep/jwt"
+	"github.com/ismdeep/parser"
 	"github.com/ismdeep/rand"
 	"os"
 )
@@ -14,6 +15,9 @@ var JWT string
 
 // Bind listen ALCHEMY_FURNACE_BIND
 var Bind string
+
+// EnableSignUp enable sign up ALCHEMY_FURNACE_SIGN_UP_ENABLED
+var EnableSignUp bool
 
 func init() {
 	// 1. 获取工作目录
@@ -32,6 +36,15 @@ func init() {
 	Bind = "0.0.0.0:8000"
 	if os.Getenv("ALCHEMY_FURNACE_BIND") != "" {
 		Bind = os.Getenv("ALCHEMY_FURNACE_BIND")
+	}
+
+	// 4. 获取注册启用标记
+	EnableSignUp = false
+	if os.Getenv("ALCHEMY_FURNACE_SIGN_UP_ENABLED") != "" {
+		f, err := parser.ToBool(os.Getenv("ALCHEMY_FURNACE_SIGN_UP_ENABLED"))
+		if err == nil && f {
+			EnableSignUp = true
+		}
 	}
 
 	jwt.Init(&jwt.Config{
