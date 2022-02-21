@@ -25,86 +25,111 @@ func Run(runID uint, executorID string) (int, error) {
 	// 1. 选取运行节点
 	var nodes []model.Node
 	if err := model.DB.Where("user_id=?", run.Task.UserID).Find(&nodes).Error; err != nil {
+		executor.PushMsg(executorID, executor.TypeStderr, err.Error())
 		return 1, err
 	}
 	if len(nodes) <= 0 {
+		executor.PushMsg(executorID, executor.TypeStderr, "[ERROR] no available node")
 		return 1, errors.New("no available node")
 	}
 	node := nodes[rand.Intn(len(nodes))]
+	executor.PushMsg(executorID, executor.TypeStdout, fmt.Sprintf("[NODE] %v", node.Name))
 
 	// 2. 准备数据
 	randKey := rand.TimeBasedFormat("{datetime}-{hex}", rand.WithHexLen(32))
 	workDir := fmt.Sprintf("/tmp/%v", randKey)
 	if err := os.MkdirAll(workDir, 0777); err != nil {
+		executor.PushMsg(executorID, executor.TypeStderr, err.Error())
 		return 1, err
 	}
 	// 2.1 写入脚本
-	if err := ioutil.WriteFile(fmt.Sprintf("%v/main.bash", workDir), []byte(run.Task.BashContent), 0777); err != nil {
+	if err := ioutil.WriteFile(fmt.Sprintf("%v/main.bash", workDir), []byte("source ./env\n\n"+run.Task.BashContent), 0777); err != nil {
+		executor.PushMsg(executorID, executor.TypeStderr, fmt.Sprintf("[ERROR] write bash file failed, err: %v", err.Error()))
+		return 1, err
+	}
+	if err := ioutil.WriteFile(fmt.Sprintf("%v/env", workDir), []byte(run.Trigger.Environment), 0777); err != nil {
+		executor.PushMsg(executorID, executor.TypeStderr, fmt.Sprintf("[ERROR] write env file failed, err: %v", err.Error()))
 		return 1, err
 	}
 	if err := ioutil.WriteFile(fmt.Sprintf("%v/ssh-key", workDir), []byte(node.SSHKey), 0600); err != nil {
+		executor.PushMsg(executorID, executor.TypeStderr, fmt.Sprintf("[ERROR] write ssh key file failed. err: %v", err.Error()))
 		return 1, err
 	}
-	// 2.2 转化pem文件
-	//cmd0 := exec.Command("ssh-keygen", "-f", "ssh-key", "-e", "-m", "pem")
-	//cmd0.Dir = workDir
-	//if err := cmd0.Run(); err != nil {
-	//	return 1, err
-	//}
 	// 2.2 创建远程服务器目录
-	cmd1 := exec.Command(
+	cmdCreateRemoteDir := exec.Command(
 		"ssh",
-		"-i",
-		"ssh-key",
+		"-o", "StrictHostKeyChecking=no",
+		"-i", "ssh-key",
 		fmt.Sprintf("%v@%v", node.Username, node.Host),
-		"-p",
-		fmt.Sprintf("%v", node.Port),
+		"-p", fmt.Sprintf("%v", node.Port),
 		fmt.Sprintf("mkdir -p %v", workDir))
-	cmd1.Dir = workDir
-	cmd1.Stdout = os.Stdout
-	cmd1.Stderr = os.Stderr
-	if err := cmd1.Run(); err != nil {
+	cmdCreateRemoteDir.Dir = workDir
+	cmdCreateRemoteDir.Stdout = os.Stdout
+	cmdCreateRemoteDir.Stderr = os.Stderr
+	if err := cmdCreateRemoteDir.Run(); err != nil {
+		executor.PushMsg(executorID, executor.TypeStderr, fmt.Sprintf("[ERROR] create remote dir failed. err: %v", err.Error()))
 		return 1, err
 	}
-	fmt.Println("cmd1 finished")
+	executor.PushMsg(executorID, executor.TypeStdout, "[DONE] create remote dir finished")
 	// 2.3 拷贝执行脚本
-	cmd2 := exec.Command(
+	cmdCopyBashFile := exec.Command(
 		"scp",
-		"-P",
-		fmt.Sprintf("%v", node.Port),
-		"-i",
-		"ssh-key",
+		"-P", fmt.Sprintf("%v", node.Port),
+		"-o", "StrictHostKeyChecking=no",
+		"-i", "ssh-key",
 		"main.bash",
 		fmt.Sprintf("%v@%v:%v", node.Username, node.Host, workDir),
 	)
-	cmd2.Stdout = os.Stdout
-	cmd2.Stderr = os.Stderr
-	cmd2.Dir = workDir
-	if err := cmd2.Run(); err != nil {
+	cmdCopyBashFile.Stdout = os.Stdout
+	cmdCopyBashFile.Stderr = os.Stderr
+	cmdCopyBashFile.Dir = workDir
+	if err := cmdCopyBashFile.Run(); err != nil {
+		executor.PushMsg(executorID, executor.TypeStderr, fmt.Sprintf("[ERROR] copy bash file failed. err: %v", err.Error()))
 		return 1, err
 	}
-	fmt.Println("cmd2 finished")
+	executor.PushMsg(executorID, executor.TypeStdout, "[DONE] copy bash file finished")
+	// 2.4 拷贝环境变量
+	cmdCopyEnvFile := exec.Command(
+		"scp",
+		"-P", fmt.Sprintf("%v", node.Port),
+		"-o", "StrictHostKeyChecking=no",
+		"-i", "ssh-key",
+		"env",
+		fmt.Sprintf("%v@%v:%v", node.Username, node.Host, workDir),
+	)
+	cmdCopyEnvFile.Stdout = os.Stdout
+	cmdCopyEnvFile.Stderr = os.Stderr
+	cmdCopyEnvFile.Dir = workDir
+	if err := cmdCopyEnvFile.Run(); err != nil {
+		executor.PushMsg(executorID, executor.TypeStderr, fmt.Sprintf("[ERROR] copy env file failed. err: %v", err.Error()))
+		return 1, err
+	}
+	executor.PushMsg(executorID, executor.TypeStdout, "[DONE] copy env file finished")
 
 	// 3. 执行命令
-	cmd3 := exec.Command("ssh",
+	cmdRunBashFile := exec.Command("ssh",
+		"-o", "StrictHostKeyChecking=no",
+		"-i", "ssh-key",
 		fmt.Sprintf("%v@%v", node.Username, node.Host),
-		"-p",
-		fmt.Sprintf("%v", node.Port),
-		fmt.Sprintf("cd %v && bash main.bash", workDir))
-	cmd3.Env = os.Environ()
+		"-p", fmt.Sprintf("%v", node.Port),
+		fmt.Sprintf("cd %v && bash ./main.bash", workDir))
+	cmdRunBashFile.Env = os.Environ()
 	for _, env := range strings.Split(run.Trigger.Environment, "\n") {
-		cmd3.Env = append(cmd3.Env, env)
+		cmdRunBashFile.Env = append(cmdRunBashFile.Env, env)
 	}
-	cmd3.Dir = workDir
-	stdoutPipe, err := cmd3.StdoutPipe()
+	cmdRunBashFile.Dir = workDir
+	stdoutPipe, err := cmdRunBashFile.StdoutPipe()
 	if err != nil {
+		executor.PushMsg(executorID, executor.TypeStderr, fmt.Sprintf("[ERROR] redirect stdout failed. err: %v", err.Error()))
 		return 1, err
 	}
-	stderrPipe, err := cmd3.StderrPipe()
+	stderrPipe, err := cmdRunBashFile.StderrPipe()
 	if err != nil {
+		executor.PushMsg(executorID, executor.TypeStderr, fmt.Sprintf("[ERROR] redirect stderr failed. err: %v", err.Error()))
 		return 1, err
 	}
-	if err := cmd3.Start(); err != nil {
+	if err := cmdRunBashFile.Start(); err != nil {
+		executor.PushMsg(executorID, executor.TypeStderr, fmt.Sprintf("[ERROR] start to run bash file failed. err: %v", err.Error()))
 		return 1, err
 	}
 	wg := &sync.WaitGroup{}
@@ -136,12 +161,12 @@ func Run(runID uint, executorID string) (int, error) {
 	go listenFunc(stdoutPipe, executor.TypeStdout)
 	go listenFunc(stderrPipe, executor.TypeStderr)
 	wg.Wait()
-	if err := cmd3.Wait(); err != nil {
+	if err := cmdRunBashFile.Wait(); err != nil {
 		return 1, err
 	}
 
 	executor.PushMsg(executorID, executor.TypeStdout, executor.EOF)
 
 	// 4. 返回数据
-	return cmd3.ProcessState.ExitCode(), nil
+	return cmdRunBashFile.ProcessState.ExitCode(), nil
 }
