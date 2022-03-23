@@ -50,20 +50,34 @@ func (receiver *taskHandler) Update(taskID uint, req *request.Task) error {
 }
 
 // List get task list
-func (receiver *taskHandler) List(userID uint) []*response.Task {
+func (receiver *taskHandler) List(userID uint) []response.Task {
 	tasks := make([]*model.Task, 0)
 	if err := model.DB.Preload("User").Where("user_id=?", userID).Find(&tasks).Error; err != nil {
 		return nil
 	}
 
-	results := make([]*response.Task, 0)
+	results := make([]response.Task, 0)
 	for _, task := range tasks {
 
-		result := &response.Task{
-			ID:      task.ID,
-			Name:    task.Name,
-			Bash:    task.BashContent,
-			LastRun: nil,
+		// 获取触发器列表
+		var triggers []model.Trigger
+		model.DB.Where("task_id=?", task.ID).Find(&triggers)
+		triggerResults := make([]response.Trigger, 0)
+		for _, trigger := range triggers {
+			triggerResults = append(triggerResults, response.Trigger{
+				ID:          trigger.ID,
+				Name:        trigger.Name,
+				Cron:        trigger.Cron,
+				Environment: trigger.Environment,
+			})
+		}
+
+		result := response.Task{
+			ID:       task.ID,
+			Name:     task.Name,
+			Bash:     task.BashContent,
+			Triggers: triggerResults,
+			LastRun:  nil,
 		}
 
 		// 获取最后一次运行记录
