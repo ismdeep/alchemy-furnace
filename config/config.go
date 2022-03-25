@@ -30,7 +30,7 @@ func init() {
 		fmt.Println("Please set ALCHEMY_FURNACE_ROOT")
 		os.Exit(1)
 	}
-	if err := os.MkdirAll(WorkDir, 0777); err != nil {
+	if err := os.MkdirAll(fmt.Sprintf("%v/data", WorkDir), 0777); err != nil {
 		panic(err)
 	}
 	log.Info("init", log.String("WorkDir", WorkDir))
