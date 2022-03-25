@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/ismdeep/alchemy-furnace/executor"
 	"github.com/ismdeep/alchemy-furnace/model"
+	"github.com/ismdeep/log"
 	"github.com/ismdeep/rand"
 	"io"
 	"io/ioutil"
@@ -67,6 +68,22 @@ func Run(runID uint, executorID string) (int, error) {
 		return 1, err
 	}
 	executor.PushMsg(executorID, executor.TypeStdout, "[DONE] create remote dir finished")
+
+	defer func() {
+		// clean remote workdir
+		cmdCleanRemote := exec.Command("ssh",
+			"-o", "StrictHostKeyChecking=no",
+			"-i", "ssh-key",
+			fmt.Sprintf("%v@%v", node.Username, node.Host),
+			"-p", fmt.Sprintf("%v", node.Port),
+			fmt.Sprintf("rm -rf %v", workDir))
+		cmdCleanRemote.Dir = workDir
+		cmdCleanRemote.Stdout = os.Stdout
+		cmdCleanRemote.Stderr = os.Stderr
+		if err := cmdCleanRemote.Run(); err != nil {
+			log.Error("run", log.Any("run_id", runID), log.Any("executor_id", executorID), log.FieldErr(err))
+		}
+	}()
 
 	// 2.3 拷贝执行脚本
 	cmdCopyBashFile := exec.Command(
