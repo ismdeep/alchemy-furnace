@@ -6,13 +6,6 @@ import (
 	"github.com/ismdeep/alchemy-furnace/request"
 )
 
-func init() {
-	permCheckAuth.GET("/api/v1/tasks/:task_id/triggers", TriggerList)
-	permCheckAuth.POST("/api/v1/tasks/:task_id/triggers", TriggerAdd)
-	permCheckAuth.PUT("/api/v1/tasks/:task_id/triggers/:trigger_id", TriggerUpdate)
-	permCheckAuth.DELETE("/api/v1/tasks/:task_id/triggers/:trigger_id", TriggerDelete)
-}
-
 // TriggerAdd add a trigger
 // @Summary add a trigger
 // @Author l.jiang.1024@gmail.com

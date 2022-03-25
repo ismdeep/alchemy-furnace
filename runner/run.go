@@ -43,12 +43,8 @@ func Run(runID uint, executorID string) (int, error) {
 		return 1, err
 	}
 	// 2.1 写入脚本
-	if err := ioutil.WriteFile(fmt.Sprintf("%v/main.bash", workDir), []byte("source ./env\n\n"+run.Task.BashContent), 0777); err != nil {
+	if err := ioutil.WriteFile(fmt.Sprintf("%v/main.bash", workDir), []byte(fmt.Sprintf("%v\n\n%v", run.Trigger.Environment, run.Task.BashContent)), 0777); err != nil {
 		executor.PushMsg(executorID, executor.TypeStderr, fmt.Sprintf("[ERROR] write bash file failed, err: %v", err.Error()))
-		return 1, err
-	}
-	if err := ioutil.WriteFile(fmt.Sprintf("%v/env", workDir), []byte(run.Trigger.Environment), 0777); err != nil {
-		executor.PushMsg(executorID, executor.TypeStderr, fmt.Sprintf("[ERROR] write env file failed, err: %v", err.Error()))
 		return 1, err
 	}
 	if err := ioutil.WriteFile(fmt.Sprintf("%v/ssh-key", workDir), []byte(node.SSHKey), 0600); err != nil {
@@ -71,6 +67,7 @@ func Run(runID uint, executorID string) (int, error) {
 		return 1, err
 	}
 	executor.PushMsg(executorID, executor.TypeStdout, "[DONE] create remote dir finished")
+
 	// 2.3 拷贝执行脚本
 	cmdCopyBashFile := exec.Command(
 		"scp",
@@ -88,23 +85,6 @@ func Run(runID uint, executorID string) (int, error) {
 		return 1, err
 	}
 	executor.PushMsg(executorID, executor.TypeStdout, "[DONE] copy bash file finished")
-	// 2.4 拷贝环境变量
-	cmdCopyEnvFile := exec.Command(
-		"scp",
-		"-P", fmt.Sprintf("%v", node.Port),
-		"-o", "StrictHostKeyChecking=no",
-		"-i", "ssh-key",
-		"env",
-		fmt.Sprintf("%v@%v:%v", node.Username, node.Host, workDir),
-	)
-	cmdCopyEnvFile.Stdout = os.Stdout
-	cmdCopyEnvFile.Stderr = os.Stderr
-	cmdCopyEnvFile.Dir = workDir
-	if err := cmdCopyEnvFile.Run(); err != nil {
-		executor.PushMsg(executorID, executor.TypeStderr, fmt.Sprintf("[ERROR] copy env file failed. err: %v", err.Error()))
-		return 1, err
-	}
-	executor.PushMsg(executorID, executor.TypeStdout, "[DONE] copy env file finished")
 
 	// 3. 执行命令
 	cmdRunBashFile := exec.Command("ssh",

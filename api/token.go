@@ -7,13 +7,6 @@ import (
 	"github.com/ismdeep/alchemy-furnace/util"
 )
 
-func init() {
-	auth.GET("/api/v1/tokens", TokenList)
-	auth.POST("/api/v1/tokens", TokenAdd)
-	permCheckAuth.PUT("/api/v1/tokens/:token_id", TokenUpdate)
-	permCheckAuth.DELETE("/api/v1/tokens/:token_id", TokenDelete)
-}
-
 // TokenList get token list
 // @Summary get token list
 // @Author l.jiang.1024@gmail.com@uniontech.com
