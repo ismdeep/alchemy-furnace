@@ -5,6 +5,7 @@ import (
 	"github.com/ismdeep/alchemy-furnace/model"
 	"github.com/ismdeep/alchemy-furnace/request"
 	"github.com/ismdeep/alchemy-furnace/response"
+	"github.com/ismdeep/log"
 	"time"
 )
 
@@ -64,12 +65,33 @@ func (receiver *taskHandler) List(userID uint) []response.Task {
 		model.DB.Where("task_id=?", task.ID).Find(&triggers)
 		triggerResults := make([]response.Trigger, 0)
 		for _, trigger := range triggers {
-			triggerResults = append(triggerResults, response.Trigger{
+			t := response.Trigger{
 				ID:          trigger.ID,
 				Name:        trigger.Name,
 				Cron:        trigger.Cron,
 				Environment: trigger.Environment,
-			})
+			}
+
+			// get last run info of trigger
+			var runs []model.Run
+			t.LastRun = nil
+			if err := model.DB.Where("task_id=? AND trigger_id=?", task.ID, trigger.ID).Order("id desc").Limit(1).Find(&runs).Error; err != nil {
+				log.Error("get task list", log.FieldErr(err))
+			}
+			if len(runs) > 0 {
+				run := runs[0]
+				t.LastRun = &response.Run{
+					ID:          run.ID,
+					Name:        run.Name,
+					TriggerName: run.TriggerName,
+					Status:      run.Status,
+					ExitCode:    run.ExitCode,
+					CreatedAt:   run.CreatedAt,
+					StartTime:   run.StartTime,
+					EndTime:     run.EndTime,
+				}
+			}
+			triggerResults = append(triggerResults, t)
 		}
 
 		result := response.Task{

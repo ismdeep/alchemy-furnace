@@ -14,13 +14,6 @@ import (
 	"net/http"
 )
 
-func init() {
-	permCheckAuth.POST("/api/v1/tasks/:task_id/triggers/:trigger_id/runs", RunCreate) // Start to run a task by trigger
-	permCheckAuth.GET("/api/v1/tasks/:task_id/runs", RunList)
-	permCheckAuth.GET("/api/v1/tasks/:task_id/runs/:run_id", RunDetail)
-	noAuth.GET("/api/v1/tasks/:task_id/runs/:run_id/log", RunLog) // Get run log with websocket
-}
-
 // RunList get task run list
 // @Summary get task run list
 // @Author l.jiang.1024@gmail.com

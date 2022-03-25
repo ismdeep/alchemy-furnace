@@ -4,6 +4,7 @@ COPY . .
 RUN go build -o main main.go
 
 FROM hub.deepin.com/public/uniteos:2021
+ENV ALCHEMY_FURNACE_ROOT=/service
 WORKDIR /service
 RUN set -eu; \
     apt-get update; \

@@ -1,54 +1,51 @@
 package config
 
 import (
+	"fmt"
 	"github.com/ismdeep/jwt"
-	"github.com/ismdeep/parser"
-	"github.com/ismdeep/rand"
+	"github.com/ismdeep/log"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
 )
 
 // WorkDir working directory ALCHEMY_FURNACE_ROOT
 var WorkDir string
 
-// JWT key ALCHEMY_FURNACE_JWT
-var JWT string
+type config struct {
+	Bind string `yaml:"bind"`
+	JWT  string `yaml:"jwt"`
+	Auth struct {
+		Username string `yaml:"username"`
+		Password string `yaml:"password"`
+	} `yaml:"auth"`
+}
 
-// Bind listen ALCHEMY_FURNACE_BIND
-var Bind string
-
-// EnableSignUp enable sign up ALCHEMY_FURNACE_SIGN_UP_ENABLED
-var EnableSignUp bool
+var ROOT config
 
 func init() {
 	// 1. 获取工作目录
-	WorkDir, _ = os.Getwd()
-	if os.Getenv("ALCHEMY_FURNACE_ROOT") != "" {
-		WorkDir = os.Getenv("ALCHEMY_FURNACE_ROOT")
+	WorkDir = os.Getenv("ALCHEMY_FURNACE_ROOT")
+	if WorkDir == "" {
+		fmt.Println("Please set ALCHEMY_FURNACE_ROOT")
+		os.Exit(1)
+	}
+	if err := os.MkdirAll(fmt.Sprintf("%v/data", WorkDir), 0777); err != nil {
+		panic(err)
+	}
+	log.Info("init", log.String("WorkDir", WorkDir))
+
+	raw, err := ioutil.ReadFile(fmt.Sprintf("%v/config.yaml", WorkDir))
+	if err != nil {
+		panic(err)
 	}
 
-	// 2. 获取 JWT 密钥
-	JWT = rand.Str(32)
-	if os.Getenv("ALCHEMY_FURNACE_JWT") != "" {
-		JWT = os.Getenv("ALCHEMY_FURNACE_JWT")
-	}
-
-	// 3. 获取 Bind 地址
-	Bind = "0.0.0.0:8000"
-	if os.Getenv("ALCHEMY_FURNACE_BIND") != "" {
-		Bind = os.Getenv("ALCHEMY_FURNACE_BIND")
-	}
-
-	// 4. 获取注册启用标记
-	EnableSignUp = false
-	if os.Getenv("ALCHEMY_FURNACE_SIGN_UP_ENABLED") != "" {
-		f, err := parser.ToBool(os.Getenv("ALCHEMY_FURNACE_SIGN_UP_ENABLED"))
-		if err == nil && f {
-			EnableSignUp = true
-		}
+	if err := yaml.Unmarshal(raw, &ROOT); err != nil {
+		panic(err)
 	}
 
 	jwt.Init(&jwt.Config{
-		Key:    JWT,
+		Key:    ROOT.JWT,
 		Expire: "72h",
 	})
 }

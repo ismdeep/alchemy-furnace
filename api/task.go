@@ -6,14 +6,6 @@ import (
 	"github.com/ismdeep/alchemy-furnace/request"
 )
 
-func init() {
-	auth.GET("/api/v1/tasks", TaskList)
-	auth.POST("/api/v1/tasks", TaskCreate)
-	permCheckAuth.PUT("/api/v1/tasks/:task_id", TaskUpdate)
-	permCheckAuth.GET("/api/v1/tasks/:task_id", TaskDetail)
-	permCheckAuth.DELETE("/api/v1/tasks/:task_id", TaskDelete)
-}
-
 // TaskList get task list
 // @Summary get task list
 // @Author l.jiang.1024@gmail.com

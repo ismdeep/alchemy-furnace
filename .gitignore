@@ -1,3 +1,4 @@
 /.idea/
 /vendor/
-/data.db
+/data/
+/config.yaml

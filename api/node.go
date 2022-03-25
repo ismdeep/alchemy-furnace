@@ -6,13 +6,6 @@ import (
 	"github.com/ismdeep/alchemy-furnace/request"
 )
 
-func init() {
-	auth.GET("/api/v1/nodes", NodeList)
-	auth.POST("/api/v1/nodes", NodeAdd)
-	permCheckAuth.PUT("/api/v1/nodes/:node_id", NodeUpdate)
-	permCheckAuth.DELETE("/api/v1/nodes/:node_id", NodeDelete)
-}
-
 // NodeAdd add a node
 // @Summary add a node
 // @Author l.jiang.1024@gmail.com

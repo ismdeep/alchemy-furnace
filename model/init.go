@@ -11,7 +11,7 @@ import (
 var DB *gorm.DB
 
 func init() {
-	instance, err := gorm.Open(sqlite.Open(fmt.Sprintf("%v/data.db", config.WorkDir)))
+	instance, err := gorm.Open(sqlite.Open(fmt.Sprintf("%v/data/data.db", config.WorkDir)))
 	if err != nil {
 		panic(err)
 	}
