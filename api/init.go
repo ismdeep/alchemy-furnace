@@ -63,6 +63,7 @@ func init() {
 	eng = gin.Default()
 	free = eng.Group("")
 	free.POST("/api/v1/sign-in", UserLogin)
+	free.GET("/api/v1/tasks/:task_id/runs/:run_id/log", RunLog) // Get run log with websocket
 
 	auth = eng.Group("").Use(Authorization())
 	auth.GET("/api/v1/nodes", NodeList)
@@ -72,7 +73,6 @@ func init() {
 	auth.POST("/api/v1/tasks/:task_id/triggers/:trigger_id/runs", RunCreate) // Start to run a task by trigger
 	auth.GET("/api/v1/tasks/:task_id/runs", RunList)
 	auth.GET("/api/v1/tasks/:task_id/runs/:run_id", RunDetail)
-	free.GET("/api/v1/tasks/:task_id/runs/:run_id/log", RunLog) // Get run log with websocket
 	auth.GET("/api/v1/tasks", TaskList)
 	auth.POST("/api/v1/tasks", TaskCreate)
 	auth.PUT("/api/v1/tasks/:task_id", TaskUpdate)
