@@ -14,7 +14,7 @@ import (
 // @Success 200 {object} []response.Task
 // @Router /api/v1/tasks [get]
 func TaskList(c *gin.Context) {
-	items := handler.Task.List(c.GetUint("user_id"))
+	items := handler.Task.List()
 	Success(c, "", items)
 }
 
@@ -33,7 +33,7 @@ func TaskCreate(c *gin.Context) {
 		return
 	}
 
-	if _, err := handler.Task.Create(c.GetUint("user_id"), &req); err != nil {
+	if _, err := handler.Task.Create(&req); err != nil {
 		Fail(c, err)
 		return
 	}

@@ -9,7 +9,6 @@ import (
 
 func Test_triggerHandler_Add(t *testing.T) {
 	type args struct {
-		userID uint
 		taskID uint
 		req    *request.Trigger
 	}
@@ -21,7 +20,6 @@ func Test_triggerHandler_Add(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				userID: testUserID,
 				taskID: testTaskID,
 				req: &request.Trigger{
 					Name:        "test-trigger-" + rand.HexStr(32),
@@ -34,7 +32,7 @@ func Test_triggerHandler_Add(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := Trigger.Add(tt.args.userID, tt.args.taskID, tt.args.req)
+			_, err := Trigger.Add(tt.args.taskID, tt.args.req)
 			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}

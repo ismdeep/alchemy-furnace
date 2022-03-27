@@ -14,12 +14,12 @@ type tokenHandler struct {
 
 var Token = &tokenHandler{}
 
-func (receiver *tokenHandler) Add(userID uint, req *request.Token) (uint, string, error) {
+func (receiver *tokenHandler) Add(req *request.Token) (uint, string, error) {
 	if req == nil || req.Name == "" {
 		return 0, "", errors.New("bad request")
 	}
 	var tokens []model.Token
-	if err := model.DB.Where("user_id=? AND name=?", userID, req.Name).Find(&tokens).Error; err != nil {
+	if err := model.DB.Where("name=?", req.Name).Find(&tokens).Error; err != nil {
 		return 0, "", err
 	}
 
@@ -30,7 +30,6 @@ func (receiver *tokenHandler) Add(userID uint, req *request.Token) (uint, string
 	token := &model.Token{
 		Name:      req.Name,
 		Key:       rand.StrWithBase("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_", 32),
-		UserID:    userID,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -41,13 +40,13 @@ func (receiver *tokenHandler) Add(userID uint, req *request.Token) (uint, string
 	return token.ID, token.Key, nil
 }
 
-func (receiver *tokenHandler) Update(userID uint, tokenID uint, req *request.Token) error {
+func (receiver *tokenHandler) Update(tokenID uint, req *request.Token) error {
 	if req == nil || req.Name == "" {
 		return errors.New("bad request")
 	}
 
 	var tokens []model.Token
-	if err := model.DB.Where("id=? AND user_id=?", tokenID, userID).Find(&tokens).Error; err != nil {
+	if err := model.DB.Where("id=?", tokenID).Find(&tokens).Error; err != nil {
 		return err
 	}
 	if len(tokens) <= 0 {
@@ -63,9 +62,9 @@ func (receiver *tokenHandler) Update(userID uint, tokenID uint, req *request.Tok
 	return nil
 }
 
-func (receiver *tokenHandler) List(userID uint) ([]response.Token, error) {
+func (receiver *tokenHandler) List() ([]response.Token, error) {
 	var tokens []model.Token
-	if err := model.DB.Where("user_id=?", userID).Find(&tokens).Error; err != nil {
+	if err := model.DB.Find(&tokens).Error; err != nil {
 		return nil, err
 	}
 

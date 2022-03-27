@@ -8,12 +8,8 @@ import (
 )
 
 func Test_taskHandler_Create(t *testing.T) {
-	userID, err := User.Register(rand.Username(), rand.PasswordEasyToRemember(5))
-	assert.NoError(t, err)
-
 	type args struct {
-		userID uint
-		req    *request.Task
+		req *request.Task
 	}
 	tests := []struct {
 		name    string
@@ -23,7 +19,6 @@ func Test_taskHandler_Create(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				userID: userID,
 				req: &request.Task{
 					Name:        "1",
 					BashContent: "sleep 10",
@@ -35,17 +30,14 @@ func Test_taskHandler_Create(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := Task.Create(tt.args.userID, tt.args.req)
+			_, err := Task.Create(tt.args.req)
 			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}
 }
 
 func Test_taskHandler_List(t *testing.T) {
-	userID, err := User.Register(rand.Username(), rand.PasswordEasyToRemember(5))
-	assert.NoError(t, err)
-
-	taskID, err := Task.Create(userID, &request.Task{
+	taskID, err := Task.Create(&request.Task{
 		Name:        rand.Username(),
 		BashContent: "sleep 1",
 		Description: "",
@@ -54,23 +46,16 @@ func Test_taskHandler_List(t *testing.T) {
 
 	t.Logf("got = %v", taskID)
 
-	type args struct {
-		userID uint
-	}
 	tests := []struct {
 		name string
-		args args
 	}{
 		{
 			name: "",
-			args: args{
-				userID: userID,
-			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			Task.List(tt.args.userID)
+			Task.List()
 		})
 	}
 }
