@@ -19,7 +19,7 @@ func NodeAdd(c *gin.Context) {
 		return
 	}
 
-	if _, err := handler.Node.Add(c.GetUint("user_id"), req); err != nil {
+	if _, err := handler.Node.Add(req); err != nil {
 		Fail(c, err)
 		return
 	}
@@ -39,7 +39,7 @@ func NodeUpdate(c *gin.Context) {
 		Fail(c, err)
 		return
 	}
-	if err := handler.Node.Update(c.GetUint("user_id"), c.GetUint("node_id"), &req); err != nil {
+	if err := handler.Node.Update(c.GetUint("node_id"), &req); err != nil {
 		Fail(c, err)
 		return
 	}
@@ -54,7 +54,7 @@ func NodeUpdate(c *gin.Context) {
 // @Tags Node
 // @Router /api/v1/nodes [get]
 func NodeList(c *gin.Context) {
-	respData, err := handler.Node.List(c.GetUint("user_id"))
+	respData, err := handler.Node.List()
 	if err != nil {
 		Fail(c, err)
 		return

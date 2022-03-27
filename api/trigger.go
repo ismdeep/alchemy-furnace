@@ -19,7 +19,7 @@ func TriggerAdd(c *gin.Context) {
 		return
 	}
 
-	if _, err := handler.Trigger.Add(c.GetUint("user_id"), c.GetUint("task_id"), &req); err != nil {
+	if _, err := handler.Trigger.Add(c.GetUint("task_id"), &req); err != nil {
 		Fail(c, err)
 		return
 	}
@@ -34,7 +34,7 @@ func TriggerAdd(c *gin.Context) {
 // @Tags Trigger
 // @Router /api/v1/tasks/:task_id/triggers [get]
 func TriggerList(c *gin.Context) {
-	respData, err := handler.Trigger.List(c.GetUint("user_id"), c.GetUint("task_id"))
+	respData, err := handler.Trigger.List(c.GetUint("task_id"))
 	if err != nil {
 		Fail(c, err)
 		return
@@ -56,7 +56,7 @@ func TriggerUpdate(c *gin.Context) {
 		return
 	}
 
-	if err := handler.Trigger.Update(c.GetUint("user_id"), c.GetUint("task_id"), c.GetUint("trigger_id"), &req); err != nil {
+	if err := handler.Trigger.Update(c.GetUint("task_id"), c.GetUint("trigger_id"), &req); err != nil {
 		Fail(c, err)
 		return
 	}

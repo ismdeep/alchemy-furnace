@@ -14,14 +14,13 @@ type taskHandler struct {
 
 var Task = &taskHandler{}
 
-func (receiver *taskHandler) Create(userID uint, req *request.Task) (uint, error) {
+func (receiver *taskHandler) Create(req *request.Task) (uint, error) {
 	if req == nil {
 		return 0, errors.New("req is nil")
 	}
 
 	item := &model.Task{
 		Name:        req.Name,
-		UserID:      userID,
 		RunOn:       req.RunOn,
 		BashContent: req.BashContent,
 		Description: req.Description,
@@ -51,9 +50,9 @@ func (receiver *taskHandler) Update(taskID uint, req *request.Task) error {
 }
 
 // List get task list
-func (receiver *taskHandler) List(userID uint) []response.Task {
+func (receiver *taskHandler) List() []response.Task {
 	tasks := make([]*model.Task, 0)
-	if err := model.DB.Preload("User").Where("user_id=?", userID).Find(&tasks).Error; err != nil {
+	if err := model.DB.Find(&tasks).Error; err != nil {
 		return nil
 	}
 

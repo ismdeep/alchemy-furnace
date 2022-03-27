@@ -9,8 +9,7 @@ import (
 
 func Test_nodeHandler_Add(t *testing.T) {
 	type args struct {
-		userID uint
-		req    *request.Node
+		req *request.Node
 	}
 	tests := []struct {
 		name    string
@@ -21,7 +20,6 @@ func Test_nodeHandler_Add(t *testing.T) {
 			// OK
 			name: "",
 			args: args{
-				userID: 1,
 				req: &request.Node{
 					Name:     "test-" + rand.HexStr(32),
 					Host:     "127.0.0.1",
@@ -74,25 +72,21 @@ DAGPzes31wmWjLAAAAFmwuamlhbmcuMTAyNEBnbWFpbC5jb20BAgME
 			// req is nil
 			name: "",
 			args: args{
-				userID: 1,
-				req:    nil,
+				req: nil,
 			},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := Node.Add(tt.args.userID, tt.args.req)
+			_, err := Node.Add(tt.args.req)
 			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}
 }
 
 func Test_nodeHandler_Update(t *testing.T) {
-	userID, err := User.Register(rand.Username(), rand.PasswordEasyToRemember(4))
-	assert.NoError(t, err)
-
-	nodeID, err := Node.Add(userID, &request.Node{
+	nodeID, err := Node.Add(&request.Node{
 		Name:     "test-" + rand.HexStr(32),
 		Host:     "127.0.0.1",
 		Port:     22,
@@ -140,7 +134,6 @@ DAGPzes31wmWjLAAAAFmwuamlhbmcuMTAyNEBnbWFpbC5jb20BAgME
 	assert.NoError(t, err)
 
 	type args struct {
-		userID uint
 		nodeID uint
 		req    *request.Node
 	}
@@ -153,7 +146,6 @@ DAGPzes31wmWjLAAAAFmwuamlhbmcuMTAyNEBnbWFpbC5jb20BAgME
 			// ok
 			name: "",
 			args: args{
-				userID: userID,
 				nodeID: nodeID,
 				req: &request.Node{
 					Name:     "test-" + rand.HexStr(32),
@@ -206,7 +198,7 @@ DAGPzes31wmWjLAAAAFmwuamlhbmcuMTAyNEBnbWFpbC5jb20BAgME
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := Node.Update(tt.args.userID, tt.args.nodeID, &request.Node{
+			err := Node.Update(tt.args.nodeID, &request.Node{
 				Name:     "",
 				Host:     "",
 				Port:     0,

@@ -25,7 +25,7 @@ func Run(runID uint, executorID string) (int, error) {
 
 	// 1. 选取运行节点
 	var nodes []model.Node
-	if err := model.DB.Where("user_id=?", run.Task.UserID).Find(&nodes).Error; err != nil {
+	if err := model.DB.Find(&nodes).Error; err != nil {
 		executor.PushMsg(executorID, executor.TypeStderr, err.Error())
 		return 1, err
 	}

@@ -18,7 +18,7 @@ func init() {
 	TriggerChan = make(chan model.Trigger, 65535)
 }
 
-func (receiver *triggerHandler) Add(userID uint, taskID uint, req *request.Trigger) (uint, error) {
+func (receiver *triggerHandler) Add(taskID uint, req *request.Trigger) (uint, error) {
 	if req == nil {
 		return 0, errors.New("req is nil")
 	}
@@ -39,7 +39,7 @@ func (receiver *triggerHandler) Add(userID uint, taskID uint, req *request.Trigg
 	return trigger.ID, nil
 }
 
-func (receiver *triggerHandler) Update(userID uint, taskID uint, triggerID uint, req *request.Trigger) error {
+func (receiver *triggerHandler) Update(taskID uint, triggerID uint, req *request.Trigger) error {
 	if req == nil {
 		return errors.New("req is nil")
 	}
@@ -52,6 +52,10 @@ func (receiver *triggerHandler) Update(userID uint, taskID uint, triggerID uint,
 		return errors.New("record not found")
 	}
 	trigger := triggers[0]
+	if trigger.TaskID != taskID {
+		return errors.New("bad request")
+	}
+
 	trigger.Name = req.Name
 	trigger.Cron = req.Cron
 	trigger.Environment = req.Environment
@@ -64,7 +68,7 @@ func (receiver *triggerHandler) Update(userID uint, taskID uint, triggerID uint,
 	return nil
 }
 
-func (receiver *triggerHandler) List(userID uint, taskID uint) ([]response.Trigger, error) {
+func (receiver *triggerHandler) List(taskID uint) ([]response.Trigger, error) {
 	var tasks []model.Task
 	if err := model.DB.Where("id=?", taskID).Find(&tasks).Error; err != nil {
 		return nil, err
@@ -93,6 +97,9 @@ func (receiver *triggerHandler) Delete(taskID uint, triggerID uint) error {
 		return err
 	}
 	trigger := triggers[0]
+	if trigger.TaskID != taskID {
+		return errors.New("bad request")
+	}
 	if err := model.DB.Delete(&trigger).Error; err != nil {
 		return err
 	}

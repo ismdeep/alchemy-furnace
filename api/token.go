@@ -14,7 +14,7 @@ import (
 // @Tags Token
 // @Router /api/v1/tokens [get]
 func TokenList(c *gin.Context) {
-	respData, err := handler.Token.List(c.GetUint("user_id"))
+	respData, err := handler.Token.List()
 	if err != nil {
 		Fail(c, err)
 		return
@@ -37,7 +37,7 @@ func TokenAdd(c *gin.Context) {
 		return
 	}
 
-	_, tokenKey, err := handler.Token.Add(c.GetUint("user_id"), req)
+	_, tokenKey, err := handler.Token.Add(req)
 	if err != nil {
 		Fail(c, err)
 		return
@@ -60,7 +60,7 @@ func TokenUpdate(c *gin.Context) {
 		return
 	}
 
-	if err := handler.Token.Update(c.GetUint("user_id"), c.GetUint("token_id"), &req); err != nil {
+	if err := handler.Token.Update(c.GetUint("token_id"), &req); err != nil {
 		Fail(c, err)
 		return
 	}

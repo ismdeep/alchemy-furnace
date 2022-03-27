@@ -7,9 +7,7 @@ import (
 
 // Node model
 type Node struct {
-	ID        uint `gorm:"primary_key"`
-	UserID    uint
-	User      User
+	ID        uint   `gorm:"primary_key"`
 	Name      string `gorm:"type:varchar(255)"`
 	Host      string `gorm:"type:varchar(255)"`
 	Port      int    `gorm:"type:int"`

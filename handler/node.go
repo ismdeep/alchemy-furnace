@@ -15,14 +15,14 @@ var Node = &nodeHandler{}
 // Add a node
 // @return nodeID uint
 // @return err error
-func (receiver *nodeHandler) Add(userID uint, req *request.Node) (uint, error) {
+func (receiver *nodeHandler) Add(req *request.Node) (uint, error) {
 	if req == nil {
 		return 0, errors.New("req is nil")
 	}
 
 	// 1. 检查是否有重名节点
 	var cnt int64
-	if err := model.DB.Model(&model.Node{}).Where("user_id=? AND name=?", userID, req.Name).Count(&cnt).Error; err != nil {
+	if err := model.DB.Model(&model.Node{}).Where("name=?", req.Name).Count(&cnt).Error; err != nil {
 		return 0, err
 	}
 	if cnt > 0 {
@@ -30,7 +30,6 @@ func (receiver *nodeHandler) Add(userID uint, req *request.Node) (uint, error) {
 	}
 
 	node := &model.Node{
-		UserID:    userID,
 		Name:      req.Name,
 		Host:      req.Host,
 		Port:      req.Port,
@@ -48,14 +47,14 @@ func (receiver *nodeHandler) Add(userID uint, req *request.Node) (uint, error) {
 }
 
 // Update a node
-func (receiver *nodeHandler) Update(userID uint, nodeID uint, req *request.Node) error {
+func (receiver *nodeHandler) Update(nodeID uint, req *request.Node) error {
 	if req == nil {
 		return errors.New("req is nil")
 	}
 
 	// 1. 获取信息
 	node := &model.Node{}
-	if err := model.DB.Where("id=? AND user_id=?", nodeID, userID).First(node).Error; err != nil {
+	if err := model.DB.Where("id=?", nodeID).First(node).Error; err != nil {
 		return err
 	}
 
@@ -75,9 +74,9 @@ func (receiver *nodeHandler) Update(userID uint, nodeID uint, req *request.Node)
 }
 
 // List get nodes
-func (receiver *nodeHandler) List(userID uint) ([]response.Node, error) {
+func (receiver *nodeHandler) List() ([]response.Node, error) {
 	nodes := make([]model.Node, 0)
-	if err := model.DB.Where("user_id=?", userID).Find(&nodes).Error; err != nil {
+	if err := model.DB.Find(&nodes).Error; err != nil {
 		return nil, err
 	}
 

@@ -6,22 +6,19 @@ import (
 	"testing"
 )
 
-var testUserID uint
 var testTaskID uint
 
 func TestMain(m *testing.M) {
 	var err error
-	testUserID, err = User.Register(rand.Username(), rand.PasswordEasyToRemember(4))
-	if err != nil {
-		panic(err)
-	}
-
-	testTaskID, err = Task.Create(testUserID, &request.Task{
+	testTaskID, err = Task.Create(&request.Task{
 		Name:        "test-" + rand.HexStr(32),
 		RunOn:       "",
 		BashContent: "sleep 1",
 		Description: "",
 	})
+	if err != nil {
+		panic(err)
+	}
 
 	m.Run()
 }
