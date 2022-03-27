@@ -6,5 +6,4 @@ type Task struct {
 	Name     string    `json:"name"`
 	Bash     string    `json:"bash"`
 	Triggers []Trigger `json:"triggers"`
-	LastRun  *Run      `json:"last_run"`
 }

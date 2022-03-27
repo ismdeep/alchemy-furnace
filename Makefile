@@ -25,7 +25,7 @@ docker:
 		--platform linux/amd64 \
 		--pull \
 		--push \
-		-t hub.deepin.com/ljiang/alchemy-furnace:latest .
+		-t ismdeep/alchemy-furnace:latest .
 
 .PHONY: vendor
 vendor:

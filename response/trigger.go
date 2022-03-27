@@ -5,5 +5,5 @@ type Trigger struct {
 	Name        string `json:"name"`
 	Cron        string `json:"cron"`
 	Environment string `json:"environment"`
-	LastRun     *Run   `json:"last_run"`
+	RecentRuns  []Run  `json:"recent_runs"`
 }
