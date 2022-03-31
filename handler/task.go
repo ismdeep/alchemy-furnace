@@ -60,62 +60,43 @@ func (receiver *taskHandler) List() []response.Task {
 	for _, task := range tasks {
 
 		// 获取触发器列表
-		var triggers []model.Trigger
-		model.DB.Where("task_id=?", task.ID).Find(&triggers)
-		triggerResults := make([]response.Trigger, 0)
-		for _, trigger := range triggers {
+		var _triggers []model.Trigger
+		model.DB.Where("task_id=?", task.ID).Find(&_triggers)
+		triggers := make([]response.Trigger, 0)
+		for _, _trigger := range _triggers {
 			t := response.Trigger{
-				ID:          trigger.ID,
-				Name:        trigger.Name,
-				Cron:        trigger.Cron,
-				Environment: trigger.Environment,
+				ID:          _trigger.ID,
+				Name:        _trigger.Name,
+				Cron:        _trigger.Cron,
+				Environment: _trigger.Environment,
 			}
 
 			// get last run info of trigger
-			var runs []model.Run
-			t.LastRun = nil
-			if err := model.DB.Where("task_id=? AND trigger_id=?", task.ID, trigger.ID).Order("id desc").Limit(1).Find(&runs).Error; err != nil {
+			var _runs []model.Run
+			if err := model.DB.Where("task_id=? AND trigger_id=?", task.ID, _trigger.ID).Order("id desc").Limit(5).Find(&_runs).Error; err != nil {
 				log.Error("get task list", log.FieldErr(err))
 			}
-			if len(runs) > 0 {
-				run := runs[0]
-				t.LastRun = &response.Run{
-					ID:          run.ID,
-					Name:        run.Name,
-					TriggerName: run.TriggerName,
-					Status:      run.Status,
-					ExitCode:    run.ExitCode,
-					CreatedAt:   run.CreatedAt,
-					StartTime:   run.StartTime,
-					EndTime:     run.EndTime,
-				}
+			for _, v := range _runs {
+				t.RecentRuns = append(t.RecentRuns, response.Run{
+					ID:          v.ID,
+					Name:        v.Name,
+					TriggerName: v.TriggerName,
+					Status:      v.Status,
+					ExitCode:    v.ExitCode,
+					Logs:        nil,
+					CreatedAt:   v.CreatedAt,
+					StartTime:   v.StartTime,
+					EndTime:     v.EndTime,
+				})
 			}
-			triggerResults = append(triggerResults, t)
+			triggers = append(triggers, t)
 		}
 
 		result := response.Task{
 			ID:       task.ID,
 			Name:     task.Name,
 			Bash:     task.BashContent,
-			Triggers: triggerResults,
-			LastRun:  nil,
-		}
-
-		// 获取最后一次运行记录
-		lastRuns := make([]model.Run, 0)
-		model.DB.Where("task_id=?", task.ID).Order("id desc").Find(&lastRuns)
-		if len(lastRuns) <= 0 {
-			result.LastRun = nil
-		} else {
-			result.LastRun = &response.Run{
-				ID:        lastRuns[0].ID,
-				Name:      "",
-				Status:    lastRuns[0].Status,
-				ExitCode:  lastRuns[0].ExitCode,
-				CreatedAt: lastRuns[0].CreatedAt,
-				StartTime: lastRuns[0].StartTime,
-				EndTime:   lastRuns[0].EndTime,
-			}
+			Triggers: triggers,
 		}
 
 		results = append(results, result)
