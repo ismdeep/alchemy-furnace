@@ -1,4 +1,4 @@
-FROM hub.deepin.com/library/golang:bullseye AS server-builder
+FROM golang:bullseye AS server-builder
 WORKDIR /src
 COPY ./server .
 RUN set -eux; \
@@ -7,14 +7,14 @@ RUN set -eux; \
     go mod vendor; \
     go build -mod vendor -o main main.go
 
-FROM hub.deepin.com/library/node:16 AS web-builder
+FROM node:16 AS web-builder
 WORKDIR /src
 COPY ./web .
 RUN yarn install
 RUN yarn build
 
 # main
-FROM hub.deepin.com/public/uniteos:2021
+FROM debian:bullseye
 ENV ALCHEMY_FURNACE_ROOT=/service
 WORKDIR /service
 RUN set -eux; \
