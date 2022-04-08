@@ -1,30 +1,39 @@
 <template>
-  <div class="masonry">
-    <div class="item" v-for="task in data.tasks">
-      <el-card class="box-card" style="width: 100%">
+  <el-collapse>
+    <el-collapse-item v-for="task in data.tasks" :title="task.name" :name="task.name">
+      <el-card>
         <template #header>
           <div class="card-header">
-            <span>{{task.name}}</span>
+            <span>{{ task.name }}</span>
             <el-button class="button" type="text">Edit</el-button>
           </div>
         </template>
-
-        <div v-for="trigger in task.triggers">
-          <el-card style="margin-top: 8px; margin-bottom: 8px;">
-            <template #header>
-              {{trigger.name}}
-            </template>
-
-            <span v-for="run in trigger.recent_runs">
-          <el-tag style="margin: 4px 4px 4px 4px;" type="success" v-if="run.status===2 && run.exit_code===0">{{run.created_at}}</el-tag>
-          <el-tag style="margin: 4px 4px 4px 4px;" type="danger" v-if="run.status===2 && run.exit_code===1">{{run.created_at}}</el-tag>
-        </span>
-          </el-card>
-        </div>
+        <el-row :gutter="12">
+          <el-col :span="12" v-for="trigger in task.triggers">
+            <el-card>
+              <template #header>
+                <div class="card-header">
+                  <span>{{ trigger.name }}</span>
+                  <el-popconfirm title="Are you sure to run?" @confirm="runTrigger(trigger)">
+                    <template #reference>
+                      <el-button class="button" type="text">Run</el-button>
+                    </template>
+                  </el-popconfirm>
+                  <el-button class="button" type="text">Edit</el-button>
+                </div>
+              </template>
+              <span v-for="run in trigger.recent_runs">
+              <el-tag v-if="run.status===2 && run.exit_code===0"
+                      style="margin: 4px 4px 4px 4px;" type="success">{{ getFromNow(run.created_at) }}</el-tag>
+              <el-tag v-if="run.status===2 && run.exit_code===1"
+                      style="margin: 4px 4px 4px 4px;" type="danger">{{ getFromNow(run.created_at) }}</el-tag>
+            </span>
+            </el-card>
+          </el-col>
+        </el-row>
       </el-card>
-    </div>
-  </div>
-
+    </el-collapse-item>
+  </el-collapse>
 </template>
 
 <script lang="ts" setup>
@@ -32,10 +41,15 @@
 import {reactive} from "vue";
 import axios from "axios";
 import {ElMessage} from "element-plus";
+import moment from "moment/moment";
 
 const data = reactive({
   tasks: []
 })
+
+const runTrigger = (e: any) => {
+  console.log(e)
+}
 
 function loadData() {
   axios.get(`/api/v1/tasks`, {
@@ -50,6 +64,10 @@ function loadData() {
 
     data.tasks = res.data.data
   })
+}
+
+function getFromNow(t: moment.MomentInput | undefined) {
+  return moment(t).fromNow()
 }
 
 loadData()
@@ -68,10 +86,6 @@ setInterval(() => {
 
 .text {
   font-size: 14px;
-}
-
-.item {
-  margin-bottom: 18px;
 }
 
 .box-card {
