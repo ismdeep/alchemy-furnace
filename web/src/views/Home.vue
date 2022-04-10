@@ -8,20 +8,12 @@
       <pre>test</pre>
     </el-dialog>
 
-    <el-tabs
-        v-model="data.activeTabName"
-        type="border-card"
-        class="demo-tabs"
-        @tab-click="handleClick"
+    <el-tabs v-if="data.tasks.length > 0"
+             v-model="data.selectedTaskName"
+             type="border-card"
+             class="demo-tabs"
     >
       <el-tab-pane v-for="task in data.tasks" :label="task.name" :name="task.name">
-        <div style="text-align: right">
-          <el-button class="button" type="text">
-            <el-icon>
-              <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ba633cb8=""><path fill="currentColor" d="M832 512a32 32 0 1 1 64 0v352a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h352a32 32 0 0 1 0 64H192v640h640V512z"></path><path fill="currentColor" d="m469.952 554.24 52.8-7.552L847.104 222.4a32 32 0 1 0-45.248-45.248L477.44 501.44l-7.552 52.8zm422.4-422.4a96 96 0 0 1 0 135.808l-331.84 331.84a32 32 0 0 1-18.112 9.088L436.8 623.68a32 32 0 0 1-36.224-36.224l15.104-105.6a32 32 0 0 1 9.024-18.112l331.904-331.84a96 96 0 0 1 135.744 0z"></path></svg>
-            </el-icon>
-          </el-button>
-        </div>
         <div>
           <el-card v-for="trigger in task.triggers" style="margin-bottom: 8px">
             <template #header>
@@ -32,14 +24,21 @@
                     <template #reference>
                       <el-button class="button" type="text">
                         <el-icon>
-                          <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ba633cb8=""><path fill="currentColor" d="M384 192v640l384-320.064z"></path></svg>
+                          <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ba633cb8="">
+                            <path fill="currentColor" d="M384 192v640l384-320.064z"></path>
+                          </svg>
                         </el-icon>
                       </el-button>
                     </template>
                   </el-popconfirm>
                   <el-button class="button" type="text">
                     <el-icon>
-                      <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ba633cb8=""><path fill="currentColor" d="M832 512a32 32 0 1 1 64 0v352a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h352a32 32 0 0 1 0 64H192v640h640V512z"></path><path fill="currentColor" d="m469.952 554.24 52.8-7.552L847.104 222.4a32 32 0 1 0-45.248-45.248L477.44 501.44l-7.552 52.8zm422.4-422.4a96 96 0 0 1 0 135.808l-331.84 331.84a32 32 0 0 1-18.112 9.088L436.8 623.68a32 32 0 0 1-36.224-36.224l15.104-105.6a32 32 0 0 1 9.024-18.112l331.904-331.84a96 96 0 0 1 135.744 0z"></path></svg>
+                      <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ba633cb8="">
+                        <path fill="currentColor"
+                              d="M832 512a32 32 0 1 1 64 0v352a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h352a32 32 0 0 1 0 64H192v640h640V512z"></path>
+                        <path fill="currentColor"
+                              d="m469.952 554.24 52.8-7.552L847.104 222.4a32 32 0 1 0-45.248-45.248L477.44 501.44l-7.552 52.8zm422.4-422.4a96 96 0 0 1 0 135.808l-331.84 331.84a32 32 0 0 1-18.112 9.088L436.8 623.68a32 32 0 0 1-36.224-36.224l15.104-105.6a32 32 0 0 1 9.024-18.112l331.904-331.84a96 96 0 0 1 135.744 0z"></path>
+                      </svg>
                     </el-icon>
                   </el-button>
                 </div>
@@ -58,12 +57,20 @@
             </span>
           </el-card>
         </div>
+        <div style="text-align: right; margin-top: 8px">
+          <el-button class="button" type="text">
+            <el-icon>
+              <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ba633cb8="">
+                <path fill="currentColor"
+                      d="M832 512a32 32 0 1 1 64 0v352a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h352a32 32 0 0 1 0 64H192v640h640V512z"></path>
+                <path fill="currentColor"
+                      d="m469.952 554.24 52.8-7.552L847.104 222.4a32 32 0 1 0-45.248-45.248L477.44 501.44l-7.552 52.8zm422.4-422.4a96 96 0 0 1 0 135.808l-331.84 331.84a32 32 0 0 1-18.112 9.088L436.8 623.68a32 32 0 0 1-36.224-36.224l15.104-105.6a32 32 0 0 1 9.024-18.112l331.904-331.84a96 96 0 0 1 135.744 0z"></path>
+              </svg>
+            </el-icon>
+          </el-button>
+        </div>
       </el-tab-pane>
     </el-tabs>
-
-    <el-collapse>
-
-    </el-collapse>
   </el-main>
 </template>
 
@@ -76,7 +83,7 @@ import moment from "moment/moment";
 
 const data = reactive({
   tasks: [],
-  activeTabName: ''
+  selectedTaskName: ''
 })
 
 const dialogData = reactive({
@@ -87,6 +94,7 @@ const dialogData = reactive({
 const showDialog = (e: any) => {
   dialogData.visible = true
   console.log(e)
+
 }
 
 const dialogDestroy = (done: () => void) => {
@@ -114,8 +122,8 @@ function loadData() {
       ElMessage.error(res.data.msg)
       return
     }
-    if (res.data.data.length > 0 && data.activeTabName === '') {
-      data.activeTabName = res.data.data[0].name
+    if (res.data.data.length > 0 && data.selectedTaskName === '') {
+      data.selectedTaskName = res.data.data[0].name
     }
     data.tasks = res.data.data
   })
@@ -141,6 +149,7 @@ function getTagType(status: any, exit_code: any) {
   return "info"
 }
 
+// main
 loadData()
 setInterval(() => {
   loadData()
