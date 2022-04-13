@@ -66,10 +66,6 @@ func init() {
 	free.GET("/api/v1/tasks/:task_id/runs/:run_id/log", RunLog) // Get run log with websocket
 
 	auth = eng.Group("").Use(Authorization())
-	auth.GET("/api/v1/nodes", NodeList)
-	auth.POST("/api/v1/nodes", NodeAdd)
-	auth.PUT("/api/v1/nodes/:node_id", NodeUpdate)
-	auth.DELETE("/api/v1/nodes/:node_id", NodeDelete)
 	auth.POST("/api/v1/tasks/:task_id/triggers/:trigger_id/runs", RunCreate) // Start to run a task by trigger
 	auth.GET("/api/v1/tasks/:task_id/runs", RunList)
 	auth.GET("/api/v1/tasks/:task_id/runs/:run_id", RunDetail)

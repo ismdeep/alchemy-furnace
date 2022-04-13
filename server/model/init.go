@@ -20,7 +20,6 @@ func init() {
 		&User{},
 		&Task{},
 		&Run{},
-		&Node{},
 		&Trigger{},
 		&Token{},
 	); err != nil {
