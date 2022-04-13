@@ -47,11 +47,6 @@ func GenerateExecutor() string {
 	return exeID
 }
 
-// DestroyExecutor 销毁执行器
-func DestroyExecutor(exeID string) {
-	delete(exeLogCache, exeID)
-}
-
 // GenerateListener 生成监听器
 func GenerateListener(exeID string) (chan *ExeLog, string, error) {
 	executor, ok := exeLogCache[exeID]
@@ -124,19 +119,4 @@ func DumpLog(exeID string) (string, error) {
 	}
 
 	return string(bytes), nil
-}
-
-// WaitEOF 等待结束
-func WaitEOF(exeID string) error {
-	executor, ok := exeLogCache[exeID]
-	if !ok {
-		return errors.New("executor not found")
-	}
-
-	for {
-		if executor.EOF {
-			return nil
-		}
-		time.Sleep(100 * time.Millisecond)
-	}
 }
