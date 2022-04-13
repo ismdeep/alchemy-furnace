@@ -19,7 +19,7 @@ ENV ALCHEMY_FURNACE_ROOT=/service
 WORKDIR /service
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y openssh-client supervisor nginx
+    apt-get install -y openssh-client supervisor nginx curl wget
 COPY --from=server-builder /src/main /usr/bin/alchemy-furnace
 COPY --from=web-builder /src/dist /usr/share/nginx/html/
 COPY ./.data/nginx/default /etc/nginx/sites-available/default
