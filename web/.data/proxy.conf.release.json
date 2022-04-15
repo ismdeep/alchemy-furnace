@@ -1,0 +1,9 @@
+{
+  "/api/*": {
+    "target": "https://console.ismdeep.com",
+    "secure": false,
+    "ws": true,
+    "logLevel": "debug",
+    "changeOrigin": true
+  }
+}

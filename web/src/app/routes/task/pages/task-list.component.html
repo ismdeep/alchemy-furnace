@@ -1,0 +1,62 @@
+<br>
+<div style="width: 2rem;height: 2rem;position: fixed;bottom: 0;right: 0;z-index: 0;">
+  <i nz-icon class="text-blue-light point" nzType="plus-circle" nzTheme="outline" (click)="create()"></i>
+</div>
+
+<div class="masonry">
+  <div class="item" *ngFor="let task of tasks">
+    <nz-card [nzTitle]="task.name" [nzExtra]="tpl">
+      <ng-template #tpl>
+        <i nz-icon class="text-blue-light point mr-lg"
+           nzType="plus"
+           nzTheme="outline"
+           (click)="addTrigger(task)"></i>
+        <i nz-icon class="text-blue-light point ml-md"
+           nzType="edit"
+           nzTheme="outline"
+           (click)="editTask(task)"></i>
+        <i nz-icon class="text-blue-light point ml-md"
+           nzType="delete"
+           nzTheme="outline"
+           nz-popconfirm="Are you sure to delete?"
+           (nzOnConfirm)="deleteTask(task)"></i>
+      </ng-template>
+      <div nz-row [nzGutter]="8">
+        <div nz-col [nzSpan]="12" *ngFor="let trigger of task.triggers">
+          <nz-card [nzTitle]="trigger.name" [nzExtra]="triggerTpl">
+            <ng-template #triggerTpl>
+              <i nz-icon class="text-blue-light point ml-md"
+                 nzType="right"
+                 nzTheme="outline"
+                 [nz-popconfirm]="'Are you sure to run?'"
+                 (nzOnConfirm)="runTrigger(task, trigger)"></i>
+              <i nz-icon class="text-blue-light point ml-md"
+                 nzType="edit"
+                 nzTheme="outline"
+                 (click)="editTrigger(task, trigger)"></i>
+              <i nz-icon class="text-blue-light point ml-md"
+                 nzType="delete"
+                 nzTheme="outline"
+                 [nz-popconfirm]="'Are you sure to delete?'"
+                 (nzOnConfirm)="deleteTrigger(task, trigger)"></i>
+            </ng-template>
+            <p style="margin-bottom: 8px" *ngIf="trigger.cron != ''">Cron: {{trigger.cron}}</p>
+            <pre style="margin-bottom: 8px" *ngIf="trigger.environment != ''">{{trigger.environment}}</pre>
+            <span class="mr-lg" *ngIf="trigger.recent_runs && trigger.recent_runs.length > 0">
+              <span *ngFor="let item of trigger.recent_runs" (click)="showLog(task.id, item)">
+                <nz-tag nzNoAnimation *ngIf="item.status == 0" [nzColor]="'yellow'">{{formatFromNow(item.created_at)}}</nz-tag>
+                <nz-tag nzNoAnimation *ngIf="item.status == 1" [nzColor]="'yellow'">{{formatFromNow(item.created_at)}}</nz-tag>
+                <nz-tag nzNoAnimation *ngIf="item.status == 2 && item.exit_code == 0" [nzColor]="'green'">{{formatFromNow(item.created_at)}}</nz-tag>
+                <nz-tag nzNoAnimation *ngIf="item.status == 2 && item.exit_code != 0" [nzColor]="'red'">{{formatFromNow(item.created_at)}}</nz-tag>
+                <nz-tag nzNoAnimation *ngIf="item.status == 3" [nzColor]="'gray'">{{formatFromNow(item.created_at)}}</nz-tag>
+              </span>
+            </span>
+            <span class="mr-lg" *ngIf="!trigger.recent_runs || trigger.recent_runs.length <= 0">
+              <nz-tag nzNoAnimation [nzColor]="'gray'">No record</nz-tag>
+            </span>
+          </nz-card>
+        </div>
+      </div>
+    </nz-card>
+  </div>
+</div>

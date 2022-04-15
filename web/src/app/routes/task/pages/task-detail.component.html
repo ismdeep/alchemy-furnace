@@ -1,0 +1,7 @@
+<span *ngFor="let item of run_list" (click)="showLog(item)">
+  <nz-tag nzNoAnimation *ngIf="item.status == 0" [nzColor]="'yellow'"><i nz-icon [nzType]="'sync'" [nzSpin]="true"></i></nz-tag>
+  <nz-tag nzNoAnimation *ngIf="item.status == 1" [nzColor]="'yellow'"><i nz-icon [nzType]="'loading'"></i></nz-tag>
+  <nz-tag nzNoAnimation *ngIf="item.status == 2 && item.exit_code == 0" [nzColor]="'green'"><i nz-icon nzType="check" nzTheme="outline"></i></nz-tag>
+  <nz-tag nzNoAnimation *ngIf="item.status == 2 && item.exit_code != 0" [nzColor]="'red'"><i nz-icon nzType="close" nzTheme="outline"></i></nz-tag>
+  <nz-tag nzNoAnimation *ngIf="item.status == 3" [nzColor]="'gray'"><i nz-icon nzType="question" nzTheme="outline"></i></nz-tag>
+</span>

@@ -1,0 +1,17 @@
+<div class="modal-header">
+  <div class="modal-title">Edit</div>
+</div>
+<sf #sf mode="edit" [schema]="schema" [ui]="ui" [formData]="i" button="none">
+  <div class="modal-footer">
+    <button nz-button type="button" (click)="close()">Cancel</button>
+    <button
+        nz-button
+        type="submit"
+        nzType="primary"
+        (click)="save(sf.value)"
+        [disabled]="!sf.valid"
+        [nzLoading]="saving">
+      Save
+    </button>
+  </div>
+</sf>

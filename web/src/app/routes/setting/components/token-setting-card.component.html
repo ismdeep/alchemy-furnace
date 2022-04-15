@@ -1,0 +1,17 @@
+<nz-card nzTitle="API Token" [nzExtra]="opsTpl">
+  <ng-template #opsTpl>
+    <i nz-icon class="text-blue-light point" nzType="plus" nzTheme="outline" (click)="add()"></i>
+  </ng-template>
+  <div nz-row [nzGutter]="8" *ngIf="tokens.length > 0">
+    <div *ngFor="let token of tokens" nz-col [nzSpan]="8">
+      <nz-card [nzTitle]="token.name" [nzExtra]="itemTpl">
+        <ng-template #itemTpl>
+          <i nz-icon class="text-blue-light point mr-md" nzType="edit" nzTheme="outline" (click)="edit(token)"></i>
+          <i nz-icon class="text-blue-light point" nzType="delete" nzTheme="outline" [nz-popconfirm]="'Are you sure to delete?'" (nzOnConfirm)="delete(token)"></i>
+        </ng-template>
+        <p>Generated At: <span [nz-tooltip]="token.created_at">{{formatTime(token.created_at)}}</span></p>
+      </nz-card>
+    </div>
+  </div>
+  <nz-empty *ngIf="tokens.length == 0"></nz-empty>
+</nz-card>

@@ -1,0 +1,145 @@
+.login-btn{
+  width: 282px;
+}
+.user-container{
+  display: flex;
+  
+  .background-panel{
+    display: flex;
+    flex: 1;
+    height: 100vh;
+    
+    .img-panel{
+      position: relative;
+      flex: 1;
+      height: 100%;
+      background: #377AFF;
+
+      .logo{
+        position: absolute;
+        top: 6.96%;
+        left: 6.3%;
+        width: auto;
+        height: 30px;
+      }
+
+      .main-img{
+        position: absolute;
+        top: 24%;
+        left: 50%;
+        width: auto;
+        height: 60.19%;
+        transform: translateX(-50%);
+      }
+
+      .circle-1{
+        @size: 285px;
+
+        position: absolute;
+        top:30.9%;
+        left: -154px;
+        width: @size;
+        height: @size;
+        border:66px solid rgba(255,255,255, 0.07);
+        border-radius: 50%;
+      }
+
+      .circle-2{
+        @size: 323px;
+
+        position: absolute;
+        right: -200px;
+        bottom: -110px;
+        width: @size;
+        height: @size;
+        border:95px solid rgba(255,255,255, 0.07);
+        border-radius: 50%;
+      }
+      .circle-base{
+        @size: 18px;
+
+        position: absolute;
+        width: @size;
+        height: @size;
+        border:5px solid rgba(255,255,255, 0.31);
+        border-radius: 50%;
+      }
+      .c1{
+        top: 17.6%;
+        left: 30%;
+      }
+      .c2{
+        top: 9.7%;
+        left: 52%;
+      }
+      .c3{
+        top: 15.9%;
+        right: 11.8%;
+      }
+      .c4{
+        top: 45.2%;
+        right: 9.1%;
+      }
+      .line-base{
+        position: absolute;
+        width: 32px;
+        height: 0;
+
+        &::before,
+        &::after{
+          position: absolute;
+          top: 0;
+          display: block;
+          height: 2px;
+          background: rgba(255,255,255, 0.46);
+          content: '';
+        }
+
+        &::before{
+          left: 0;
+          width: 20px;
+        }
+        &::after{
+          right: 0;
+          width: 8px;
+        }
+      }
+
+      .l1{
+        top: 8.4%;
+        left: 36%;
+      }
+      .l2{
+        top: 17.6%;
+        left: 57.7%;
+      }
+      .l3{
+        top: 16.1%;
+        right: -4.8%;
+      }
+    }
+    .edge-panel{
+      display: block;
+      width: auto;
+      height: 100%;
+    }
+  }
+  
+  .login-panel{
+    width: 416px;
+    height: 100vh;
+    padding-right: 42px;
+    // padding-bottom: @dig-margin-base;
+    overflow-y: auto;
+  }
+  
+  .title{
+    margin-top: 23.6vh;
+    margin-bottom: 82px;
+    margin-left: 58px;
+    font-weight:400;
+    // margin: 238px 0 82px 58px;
+    font-size:32px;
+    // font-family:SourceHanSansCN-Normal,SourceHanSansCN;
+  }
+}

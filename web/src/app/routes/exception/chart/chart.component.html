@@ -1,0 +1,167 @@
+<div class="background">
+    <nz-card class="margin:0">
+        <form nz-form [formGroup]="validateForm" (ngSubmit)="getData()" class="search__form">
+            <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 24, lg: 24, xl: 48, xxl: 48 }">
+                <div nz-col nzLg="6" nzMd="8" nzSm="24">
+                    <nz-form-item>
+                        <nz-form-label nzFor="app">应用名称</nz-form-label>
+                        <nz-form-control>
+                            <nz-select nzAllowClear="true" formControlName="app" (ngModelChange)="getAppName($event)">
+                                <nz-option *ngFor="let item of appName" [nzValue]="item.value" [nzLabel]="item.name">
+                                </nz-option>
+                            </nz-select>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+
+                <div nz-col nzLg="8" nzMd="8" nzSm="24">
+                    <nz-form-item>
+                        <nz-form-label nzFor="service">服务名称</nz-form-label>
+                        <nz-form-control>
+                            <nz-select nzAllowClear="true" formControlName="service" (ngModelChange)="getService()">
+                                <nz-option *ngFor="let item of serviceName" [nzValue]="item" [nzLabel]="item==''?'全部':item">
+                                </nz-option>
+                            </nz-select>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+
+                <div nz-col nzLg="6" nzMd="8" nzSm="24">
+                    <nz-form-item>
+                        <nz-form-label nzFor="status">时间</nz-form-label>
+                        <nz-form-control>
+                            <nz-select nzAllowClear="true" formControlName="ts" (ngModelChange)="changeTime()">
+                                <nz-option nzValue="1" nzLabel="一分钟前"></nz-option>
+                                <nz-option nzValue="5" nzLabel="五分钟前"></nz-option>
+                                <nz-option nzValue="15" nzLabel="十五分钟前"></nz-option>
+                                <nz-option nzValue="30" nzLabel="半小时前"></nz-option>
+                                <nz-option nzValue="60" nzLabel="一小时前"></nz-option>
+                                <nz-option nzValue="120" nzLabel="二小时前"></nz-option>
+                                <nz-option nzValue="240" nzLabel="四小时前"></nz-option>
+                            </nz-select>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+
+                <div nz-col nzLg="2" nzMd="2" nzSm="24">
+                    <button nz-button (click)="reast()">重置</button>
+                </div>
+            </div>
+        </form>
+    </nz-card>
+
+    <div nz-row [nzGutter]="24" class="pt-lg">
+        <div nz-col nzXs="24" nzSm="4" nzMd="12" nzLg="5">
+            <g2-card [title]="'请求总量'" [total]="countTotal?.req_count.toFixed(0)" contentHeight="44px">
+
+                <trend [flag]="countTotal?.ratio>0?'up':'down'" style=" margin-top: 2px;">
+                    日环比
+                    <span class="pl-sm">{{countTotal?.ratio.toFixed(2)}}%</span>
+                </trend>
+
+            </g2-card>
+        </div>
+
+
+        <div nz-col nzXs="24" nzSm="4" nzMd="12" nzLg="5">
+            <g2-card [title]="'平均响应时间'" [total]="cost?.req_cost.toFixed(2)+'ms'" contentHeight="44px">
+
+                <trend [flag]="cost?.ratio>0?'up':'down'" style=" margin-top: 2px;">
+                    日环比
+                    <span class="pl-sm">{{cost?.ratio.toFixed(2)}}%</span>
+                </trend>
+                <ng-template #footer1>
+                    <p class="text-truncate mb0">
+
+                    </p>
+                </ng-template>
+            </g2-card>
+        </div>
+
+
+        <div nz-col nzXs="24" nzSm="4" nzMd="12" nzLg="4">
+            <g2-card [title]="'错误数'" [total]="countErr?.req_count.toFixed(0)" contentHeight="44px">
+
+                <trend [flag]="countErr?.ratio>0?'up':'down'" style=" margin-top: 2px;">
+                    日环比
+                    <span class="pl-sm">{{countErr?.ratio.toFixed(2)}}%</span>
+                </trend>
+                <ng-template #footer1>
+                    <p class="text-truncate mb0">
+
+                    </p>
+                </ng-template>
+            </g2-card>
+        </div>
+
+
+        <div nz-col nzXs="24" nzSm="4" nzMd="12" nzLg="5">
+            <g2-card [title]="'维护数'" [total]="countMaintain?.req_count.toFixed(0)" contentHeight="44px">
+
+                <trend [flag]="countMaintain?.ratio>0?'up':'down'" style=" margin-top: 2px;">
+                    日环比
+                    <span class="pl-sm">{{countMaintain?.ratio.toFixed(2)}}%</span>
+                </trend>
+                <ng-template #footer1>
+                    <p class="text-truncate mb0">
+
+                    </p>
+                </ng-template>
+            </g2-card>
+        </div>
+
+
+        <div nz-col nzXs="24" nzSm="4" nzMd="12" nzLg="5">
+            <g2-card [title]="'正常数'" [total]="count?.req_count.toFixed(0)" contentHeight="40px">
+
+                <trend [flag]="count?.ratio>0?'up':'down'" style=" margin-top: 2px;">
+                    日环比
+                    <span class="pl-sm">{{count?.ratio.toFixed(2)}}%</span>
+                </trend>
+                <ng-template #footer1>
+                    <p class="text-truncate mb0">
+
+                    </p>
+                </ng-template>
+            </g2-card>
+        </div>
+
+    </div>
+
+
+    <nz-card [nzBordered]="false" [nzTitle]="'状态码分布'">
+        <ng-template #salesTitle>
+            Sales Statistics
+            <small class="text-sm font-weight-normal">Business Expectations & Retail Sales
+                Statistics</small>
+        </ng-template>
+        <g2-bar *ngIf="statusData" height="275" [data]="statusData"></g2-bar>
+    </nz-card>
+
+    <nz-card>
+        <div nz-row nzGutter="16">
+
+            <div nz-col nzXs="24" nzMd="12">
+                <nz-card [nzTitle]="'请求总量/每分钟'" [nzBordered]="false">
+                    <ng-template #growthTitle>
+                        Growth Rate
+                        <small class="text-sm font-weight-normal">Business Expectations & Retail Sales
+                            Statistics</small>
+                    </ng-template>
+                    <g2-timeline *ngIf="totaldata" [data]="totaldata" [height]="289" [titleMap]="{ y1: '请求总量', y2: '' }"></g2-timeline>
+                </nz-card>
+            </div>
+
+            <div nz-col nzXs="24" nzMd="12">
+                <nz-card [nzTitle]="'平均响应耗时/每分钟'" [nzBordered]="false">
+                    <ng-template #growthTitle>
+                        Growth Rate
+                        <small class="text-sm font-weight-normal">Business Expectations & Retail Sales
+                            Statistics</small>
+                    </ng-template>
+                    <g2-timeline *ngIf="timeDate" [data]="timeDate" [theme]="theme" [height]="289" [titleMap]="{ y1: '请求响应时间', y2: '' }"></g2-timeline>
+                </nz-card>
+            </div>
+        </div>
+    </nz-card>
+</div>

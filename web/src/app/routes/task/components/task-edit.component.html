@@ -1,0 +1,31 @@
+<form nz-form [formGroup]="taskEditForm" (ngSubmit)="submitForm()" [nzLayout]="'vertical'">
+  <nz-form-item>
+    <nz-form-label nzRequired>Name</nz-form-label>
+    <nz-form-control nzErrorTip="Name can NOT be empty">
+      <nz-input-group>
+        <input type="text" nz-input formControlName="name" placeholder="Please input name"/>
+      </nz-input-group>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Content</nz-form-label>
+    <nz-form-control [nzErrorTip]="ErrorTpl">
+      <nz-input-group>
+        <ngx-monaco-editor contenteditable="false" class="editor" style="height: 60vh"
+                           [options]="editorOptions" formControlName="bash_content">
+        </ngx-monaco-editor>
+        <ng-template #ErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            Required
+          </ng-container>
+        </ng-template>
+      </nz-input-group>
+    </nz-form-control>
+  </nz-form-item>
+</form>
+
+<div class="drawer-footer">
+  <button nz-button [nzType]="'default'" (click)="close()">Cancel</button>
+  <button nz-button [nzType]="'primary'" [disabled]="!taskEditForm.valid" (click)="submitForm()">Save</button>
+</div>

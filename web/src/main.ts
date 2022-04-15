@@ -1,22 +1,20 @@
-import {createApp} from 'vue'
-import App from './App.vue'
-import {createRouter, createWebHistory} from "vue-router";
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
+import {enableProdMode, ViewEncapsulation} from '@angular/core';
+import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
+import {AppModule} from './app/app.module';
+import {preloaderFinished} from '@delon/theme';
 
-import Home from './views/Home.vue'
-import About from './views/About.vue'
-import Login from './views/Login.vue'
+preloaderFinished();
+enableProdMode();
 
-const routes = [
-  {path: '/', component: Home},
-  {path: '/about', component: About},
-  {path: '/login', component: Login},
-]
+const bootstrap = () => {
+  return platformBrowserDynamic().bootstrapModule(AppModule, {
+    defaultEncapsulation: ViewEncapsulation.Emulated,
+  }).then((res) => {
+    if ((window as any).appBootstrap) {
+      (window as any).appBootstrap()
+    }
+    return res;
+  });
+};
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-})
-
-createApp(App).use(ElementPlus).use(router).mount('#app')
+bootstrap().then()

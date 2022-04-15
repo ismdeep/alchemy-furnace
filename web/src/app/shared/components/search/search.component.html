@@ -1,0 +1,10 @@
+<!-- <div class="example-input" style="width:35%"> -->
+<input [type]="type" [maxlength]="maxLength" [placeholder]="placeholder" nz-input [(ngModel)]="value" (ngModelChange)="updateChanges()" (input)="search$.next($event.target?.value)" [nzAutocomplete]="auto" />
+<!-- <nz-autocomplete [nzDataSource]="options" nzBackfill #auto></nz-autocomplete> -->
+
+<nz-autocomplete #auto>
+    <nz-auto-option *ngFor="let item of options" [nzValue]="item">
+        {{ item }}
+    </nz-auto-option>
+</nz-autocomplete>
+<!-- </div> -->
