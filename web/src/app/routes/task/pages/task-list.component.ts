@@ -115,7 +115,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
   }
 
   showLog(taskID, e) {
-    this.modalHelper.create(RunDetailComponent, {id: taskID, run_id: e.id}, {size: 'lg'}).subscribe(() => {
+    this.modalHelper.create(RunDetailComponent, {id: taskID, run_id: e.id}, {size: document.body.clientWidth * 0.8}).subscribe(() => {
     })
   }
 }
