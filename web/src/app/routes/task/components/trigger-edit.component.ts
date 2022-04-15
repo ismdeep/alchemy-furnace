@@ -21,7 +21,10 @@ export class TriggerEditComponent implements OnInit {
         title: 'Environment',
         ui: {
           widget: 'textarea',
-          autosize: {minRows: 2, maxRows: 4},
+          autosize: {
+            minRows: 6,
+            maxRows: 6,
+          },
         } as SFTextareaWidgetSchema
       },
     },

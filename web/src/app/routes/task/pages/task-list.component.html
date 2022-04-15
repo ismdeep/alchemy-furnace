@@ -3,10 +3,10 @@
   <i nz-icon class="text-blue-light point" nzType="plus-circle" nzTheme="outline" (click)="create()"></i>
 </div>
 
-<div class="masonry">
-  <div class="item" *ngFor="let task of tasks">
-    <nz-card [nzTitle]="task.name" [nzExtra]="tpl">
-      <ng-template #tpl>
+<nz-card>
+  <nz-tabset nzType="card">
+    <nz-tab *ngFor="let task of tasks" [nzTitle]="task.name">
+      <div style="text-align: right">
         <i nz-icon class="text-blue-light point mr-lg"
            nzType="plus"
            nzTheme="outline"
@@ -20,7 +20,8 @@
            nzTheme="outline"
            nz-popconfirm="Are you sure to delete?"
            (nzOnConfirm)="deleteTask(task)"></i>
-      </ng-template>
+      </div>
+      <br>
       <div nz-row [nzGutter]="8">
         <div nz-col [nzSpan]="12" *ngFor="let trigger of task.triggers">
           <nz-card [nzTitle]="trigger.name" [nzExtra]="triggerTpl">
@@ -40,23 +41,22 @@
                  [nz-popconfirm]="'Are you sure to delete?'"
                  (nzOnConfirm)="deleteTrigger(task, trigger)"></i>
             </ng-template>
-            <p style="margin-bottom: 8px" *ngIf="trigger.cron != ''">Cron: {{trigger.cron}}</p>
-            <pre style="margin-bottom: 8px" *ngIf="trigger.environment != ''">{{trigger.environment}}</pre>
-            <span class="mr-lg" *ngIf="trigger.recent_runs && trigger.recent_runs.length > 0">
-              <span *ngFor="let item of trigger.recent_runs" (click)="showLog(task.id, item)">
-                <nz-tag nzNoAnimation *ngIf="item.status == 0" [nzColor]="'yellow'">{{formatFromNow(item.created_at)}}</nz-tag>
-                <nz-tag nzNoAnimation *ngIf="item.status == 1" [nzColor]="'yellow'">{{formatFromNow(item.created_at)}}</nz-tag>
-                <nz-tag nzNoAnimation *ngIf="item.status == 2 && item.exit_code == 0" [nzColor]="'green'">{{formatFromNow(item.created_at)}}</nz-tag>
-                <nz-tag nzNoAnimation *ngIf="item.status == 2 && item.exit_code != 0" [nzColor]="'red'">{{formatFromNow(item.created_at)}}</nz-tag>
-                <nz-tag nzNoAnimation *ngIf="item.status == 3" [nzColor]="'gray'">{{formatFromNow(item.created_at)}}</nz-tag>
-              </span>
-            </span>
+            <p *ngIf="trigger.cron != ''">Cron: {{trigger.cron}}</p>
+            <div *ngIf="runs_map[trigger.id] && runs_map[trigger.id].length > 0">
+              <nz-tag *ngFor="let item of runs_map[trigger.id]"
+                      (click)="showLog(task.id, item)"
+                      nzNoAnimation
+                      [nzColor]="getRunColor(item.status,item.exit_code)" style="margin-bottom: 8px">
+                {{formatFromNow(item.created_at)}}
+              </nz-tag>
+            </div>
             <span class="mr-lg" *ngIf="!trigger.recent_runs || trigger.recent_runs.length <= 0">
               <nz-tag nzNoAnimation [nzColor]="'gray'">No record</nz-tag>
             </span>
           </nz-card>
         </div>
       </div>
-    </nz-card>
-  </div>
-</div>
+    </nz-tab>
+  </nz-tabset>
+</nz-card>
+

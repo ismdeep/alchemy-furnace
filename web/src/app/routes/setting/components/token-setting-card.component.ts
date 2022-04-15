@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
-import {_HttpClient, DrawerHelper, ModalHelper} from "@delon/theme";
+import {_HttpClient, DrawerHelper} from "@delon/theme";
 import {TokenEditFormComponent} from "./token-edit-form.component";
 import format from 'date-fns/format';
 
@@ -10,7 +10,6 @@ import format from 'date-fns/format';
 export class TokenSettingCardComponent implements OnInit, OnDestroy {
   constructor(
     private http: _HttpClient,
-    public modalHelper: ModalHelper,
     private drawerHelper: DrawerHelper,
   ) {
   }

@@ -1,13 +1,11 @@
-import {ChangeDetectorRef, Component, OnInit, OnDestroy} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, OnDestroy, forwardRef} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {Router} from '@angular/router';
 import {ModalHelper, _HttpClient, DrawerHelper, TitleService} from '@delon/theme';
 import {NzMessageService} from 'ng-zorro-antd';
 import {tap} from 'rxjs/operators';
 import {TaskEditComponent} from "../components/task-edit.component";
-import format from 'date-fns/format';
 import {TriggerEditComponent} from "../components/trigger-edit.component";
-import {TaskDetailComponent} from "./task-detail.component";
 import {RunDetailComponent} from "./run-detail.component";
 import * as moment from "moment";
 
@@ -30,31 +28,50 @@ export class TaskListComponent implements OnInit, OnDestroy {
   }
 
   loading = false;
-
+  intervalInstance;
   ngOnInit() {
     this.title.setTitle('Tasks - Alchemy Furnace')
     this.getData();
+    if (this.intervalInstance) {
+      clearInterval(this.intervalInstance)
+    }
+    this.intervalInstance = setInterval(() => {
+      this.getData()
+    }, 1000)
   }
 
   ngOnDestroy() {
+    if (this.intervalInstance) {
+      clearInterval(this.intervalInstance)
+    }
   }
 
-  tasks = [];
-
+  tasks = []
+  tasks_loaded : boolean = false
+  runs_map = {}
   getData() {
     this.loading = true;
     this.http.get(`/api/v1/tasks`).pipe(tap(() => (this.loading = false))).subscribe(
       (res) => {
-        this.tasks = res.data;
+        if (!this.tasks_loaded) {
+          this.tasks = res.data;
+          this.tasks_loaded = true
+        }
+        for (let i = 0; i < res.data.length; i++) {
+          let task = res.data[i]
+          if (!task.triggers) {
+            continue
+          }
+          for (let j = 0; j < task.triggers.length; j++) {
+            let trigger = task.triggers[j]
+            this.runs_map[trigger.id] = trigger.recent_runs
+          }
+        }
       },
       () => {
         this.loading = false;
       },
     );
-  }
-
-  formatTime(t) {
-    return format(new Date(t), 'yyyy-MM-dd  HH:mm:ss');
   }
 
   formatFromNow(t) {
@@ -78,11 +95,6 @@ export class TaskListComponent implements OnInit, OnDestroy {
       this.message.success('Deleted');
       this.getData();
     });
-  }
-
-  showTaskDetail(item) {
-    this.modalHelper.create(TaskDetailComponent, {id: item.id}).subscribe(() => {
-    })
   }
 
   editTrigger(taskInfo, item) {
@@ -117,7 +129,23 @@ export class TaskListComponent implements OnInit, OnDestroy {
   }
 
   showLog(taskID, e) {
-    this.modalHelper.create(RunDetailComponent, {id: taskID, run_id: e.id}, {size: 'lg'}).subscribe(() => {
+    this.modalHelper.create(RunDetailComponent, {id: taskID, run_id: e.id}, {size: document.body.clientWidth * 0.8}).subscribe(() => {
     })
+  }
+
+  getRunColor(status,exit_code) {
+    if (status === 0 || status === 1) {
+      return "yellow"
+    }
+    if (status === 2 && exit_code === 0) {
+      return "green"
+    }
+    if (status === 2 && exit_code !== 0) {
+      return "red"
+    }
+    if (status === 3) {
+      return "gray"
+    }
+    return "gray"
   }
 }
