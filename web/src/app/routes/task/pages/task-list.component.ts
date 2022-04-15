@@ -5,9 +5,7 @@ import {ModalHelper, _HttpClient, DrawerHelper, TitleService} from '@delon/theme
 import {NzMessageService} from 'ng-zorro-antd';
 import {tap} from 'rxjs/operators';
 import {TaskEditComponent} from "../components/task-edit.component";
-import format from 'date-fns/format';
 import {TriggerEditComponent} from "../components/trigger-edit.component";
-import {TaskDetailComponent} from "./task-detail.component";
 import {RunDetailComponent} from "./run-detail.component";
 import * as moment from "moment";
 
@@ -30,13 +28,22 @@ export class TaskListComponent implements OnInit, OnDestroy {
   }
 
   loading = false;
-
+  intervalInstance;
   ngOnInit() {
     this.title.setTitle('Tasks - Alchemy Furnace')
     this.getData();
+    if (this.intervalInstance) {
+      clearInterval(this.intervalInstance)
+    }
+    this.intervalInstance = setInterval(() => {
+      this.getData()
+    }, 1000)
   }
 
   ngOnDestroy() {
+    if (this.intervalInstance) {
+      clearInterval(this.intervalInstance)
+    }
   }
 
   tasks = [];
@@ -51,10 +58,6 @@ export class TaskListComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
     );
-  }
-
-  formatTime(t) {
-    return format(new Date(t), 'yyyy-MM-dd  HH:mm:ss');
   }
 
   formatFromNow(t) {
@@ -78,11 +81,6 @@ export class TaskListComponent implements OnInit, OnDestroy {
       this.message.success('Deleted');
       this.getData();
     });
-  }
-
-  showTaskDetail(item) {
-    this.modalHelper.create(TaskDetailComponent, {id: item.id}).subscribe(() => {
-    })
   }
 
   editTrigger(taskInfo, item) {
