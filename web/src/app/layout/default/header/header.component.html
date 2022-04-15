@@ -1,0 +1,18 @@
+<style>
+    .ant-menu-horizontal {
+        line-height: 62px;
+    }
+</style>
+
+<div class="alain-default__nav-wrap">
+  <ul class='alain-default__nav' nz-menu nzMode="horizontal">
+    <li *ngFor="let item of menu" nz-submenu nz-menu-item [nzIcon]="item.icon" [nzTitle]="item.text" (click)='go(item.link)'>
+    </li>
+  </ul>
+
+  <ul class="alain-default__nav">
+    <li class="hidden-mobile">
+      <header-user></header-user>
+    </li>
+  </ul>
+</div>

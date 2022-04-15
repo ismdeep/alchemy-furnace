@@ -1,0 +1,23 @@
+<div class='user-container'>
+  <div class='background-panel'>
+    <div class="img-panel">
+      <img src="/assets/images/logo-white.png" class="logo" alt="" />
+      <img src="/assets/images/login-main@2x.png" class="main-img" alt="" />
+      <div class="circle-1"></div>
+      <div class="circle-base c1"></div>
+      <div class="circle-base c2"></div>
+      <div class="circle-base c3"></div>
+      <div class="circle-base c4"></div>
+      <div class="line-base l1"></div>
+      <div class="line-base l2"></div>
+      <div class="line-base l3"></div>
+    </div>
+  </div>
+  <div class='login-panel'>
+    <h2 class='title'>Alchemy Furnace</h2>
+    <sf #sf [button]="null" [schema]="schema">
+      <button type="submit" [nzLoading]="isLogging" nz-button [disabled]="!sf.valid" (click)="submit(sf.value)" nzType="primary"
+        class="login-btn">{{login_text}}</button>
+    </sf>
+  </div>
+</div>

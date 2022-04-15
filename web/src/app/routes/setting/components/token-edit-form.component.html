@@ -1,0 +1,21 @@
+<form nz-form [formGroup]="tokenEditForm" (ngSubmit)="submitForm()" [nzLayout]="'vertical'">
+  <nz-form-item>
+    <nz-form-label nzRequired>Name</nz-form-label>
+    <nz-form-control nzErrorTip="Name can NOT be empty">
+      <nz-input-group>
+        <input type="text" nz-input formControlName="name" placeholder="Please input name"/>
+      </nz-input-group>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item *ngIf="tokenKey != ''">
+    <p>Make sure to copy your personal access token now. You won’t be able to see it again!</p>
+    <p>
+      {{tokenKey}}
+    </p>
+  </nz-form-item>
+</form>
+
+<div class="drawer-footer">
+  <button nz-button [nzType]="'default'" (click)="close()">Cancel</button>
+  <button nz-button [nzType]="'primary'" [disabled]="!tokenEditForm.valid" (click)="submitForm()">Save</button>
+</div>

@@ -1,0 +1,55 @@
+.echart {
+  width: 100%;
+  height: 421px;
+}
+#resourcesEchart3{
+  height: 300px;
+}
+.app-list {
+  margin: 0;
+  padding: 0;
+  font-size: 24px;
+  list-style: none;
+}
+.app-list > li {
+  width: 20%;
+  padding: 10px 30px;
+  color: white;
+  border-radius: 12px;
+}
+.app-list > li .info {
+  display: inline-block;
+  margin-left: 15px;
+  text-align: center;
+  vertical-align: top;
+}
+
+.cluster-env {
+  width: 150px;
+}
+.container {
+  border-radius: 12px;
+}
+.wrap {
+  border-radius: 12px;
+}
+.wrap:hover {
+  box-shadow: #ccc 8px 8px 8px;
+  transition: all 1s;
+}
+.container:first-child {
+  width: 58%;
+}
+.select-container {
+  font-size: 16px;
+}
+.header {
+  text-align: left;
+}
+
+.wrap > .title > span {
+  font-weight: bold;
+}
+.fire {
+  vertical-align: top;
+}
