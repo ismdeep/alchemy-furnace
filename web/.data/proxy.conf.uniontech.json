@@ -1,0 +1,9 @@
+{
+  "/api/*": {
+    "target": "http://10.0.33.50:23456",
+    "secure": false,
+    "ws": true,
+    "logLevel": "debug",
+    "changeOrigin": true
+  }
+}

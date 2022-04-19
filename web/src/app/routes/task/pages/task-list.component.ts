@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, OnDestroy} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, OnDestroy, forwardRef} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {Router} from '@angular/router';
 import {ModalHelper, _HttpClient, DrawerHelper, TitleService} from '@delon/theme';
@@ -46,13 +46,27 @@ export class TaskListComponent implements OnInit, OnDestroy {
     }
   }
 
-  tasks = [];
-
+  tasks = []
+  tasks_loaded : boolean = false
+  runs_map = {}
   getData() {
     this.loading = true;
     this.http.get(`/api/v1/tasks`).pipe(tap(() => (this.loading = false))).subscribe(
       (res) => {
-        this.tasks = res.data;
+        if (!this.tasks_loaded) {
+          this.tasks = res.data;
+          this.tasks_loaded = true
+        }
+        for (let i = 0; i < res.data.length; i++) {
+          let task = res.data[i]
+          if (!task.triggers) {
+            continue
+          }
+          for (let j = 0; j < task.triggers.length; j++) {
+            let trigger = task.triggers[j]
+            this.runs_map[trigger.id] = trigger.recent_runs
+          }
+        }
       },
       () => {
         this.loading = false;
@@ -117,5 +131,21 @@ export class TaskListComponent implements OnInit, OnDestroy {
   showLog(taskID, e) {
     this.modalHelper.create(RunDetailComponent, {id: taskID, run_id: e.id}, {size: document.body.clientWidth * 0.8}).subscribe(() => {
     })
+  }
+
+  getRunColor(status,exit_code) {
+    if (status === 0 || status === 1) {
+      return "yellow"
+    }
+    if (status === 2 && exit_code === 0) {
+      return "green"
+    }
+    if (status === 2 && exit_code !== 0) {
+      return "red"
+    }
+    if (status === 3) {
+      return "gray"
+    }
+    return "gray"
   }
 }
