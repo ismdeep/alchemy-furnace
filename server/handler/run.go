@@ -16,7 +16,7 @@ type runHandler struct{}
 var Run = &runHandler{}
 
 // List tasks
-func (receiver *runHandler) List(taskID uint, page int, size int) ([]*response.Run, int64, error) {
+func (receiver *runHandler) List(taskID uint, page int, size int) ([]response.Run, int64, error) {
 	items := make([]*model.Run, 0)
 	var total int64
 	conn := model.DB.Preload("Trigger").Model(&items).Where("task_id=?", taskID)
@@ -27,9 +27,9 @@ func (receiver *runHandler) List(taskID uint, page int, size int) ([]*response.R
 		return nil, 0, err
 	}
 
-	results := make([]*response.Run, 0)
+	results := make([]response.Run, 0)
 	for _, item := range items {
-		results = append(results, &response.Run{
+		results = append(results, response.Run{
 			ID:               item.ID,
 			Name:             item.Name,
 			TriggerName:      item.TriggerName,

@@ -73,7 +73,7 @@ func (receiver *taskHandler) List() []response.Task {
 
 			// get last run info of trigger
 			var _runs []model.Run
-			if err := model.DB.Where("task_id=? AND trigger_id=?", task.ID, _trigger.ID).Order("id desc").Limit(5).Find(&_runs).Error; err != nil {
+			if err := model.DB.Where("task_id=? AND trigger_id=?", task.ID, _trigger.ID).Order("id desc").Limit(20).Find(&_runs).Error; err != nil {
 				log.Error("get task list", log.FieldErr(err))
 			}
 			for _, v := range _runs {
