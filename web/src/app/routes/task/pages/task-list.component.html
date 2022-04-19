@@ -42,7 +42,6 @@
                  (nzOnConfirm)="deleteTrigger(task, trigger)"></i>
             </ng-template>
             <p style="margin-bottom: 8px" *ngIf="trigger.cron != ''">Cron: {{trigger.cron}}</p>
-            <pre style="margin-bottom: 8px" *ngIf="trigger.environment != ''">{{trigger.environment}}</pre>
             <span class="mr-lg" *ngIf="trigger.recent_runs && trigger.recent_runs.length > 0">
               <span *ngFor="let item of trigger.recent_runs" (click)="showLog(task.id, item)">
                 <nz-tag nzNoAnimation *ngIf="item.status == 0"
