@@ -131,7 +131,7 @@ func RunLog(c *gin.Context) {
 			if v.Line == executor.EOF {
 				break
 			}
-			_ = ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("[%v] %v\n", v.OutputAt.Format("2006-01-02 15:04:05"), v.Line)))
+			_ = ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%v\n", v.Line)))
 		}
 
 		_ = executor.DestroyListener(run.ExecutorID, listenerID)
@@ -142,7 +142,7 @@ func RunLog(c *gin.Context) {
 	logs := make([]executor.ExeLog, 0)
 	_ = json.Unmarshal([]byte(run.CmdLog), &logs)
 	for _, v := range logs {
-		_ = ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("[%v] %v\n", v.OutputAt.Format("2006-01-02 15:04:05"), v.Line)))
+		_ = ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%v\n", v.Line)))
 	}
 
 	_ = ws.WriteMessage(websocket.CloseMessage, []byte(""))
