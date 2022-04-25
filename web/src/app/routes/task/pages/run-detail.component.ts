@@ -21,7 +21,7 @@ export class RunDetailComponent implements OnInit, OnDestroy {
   ) {
   }
 
-  preHeight = document.body.clientHeight - 400;
+  preHeight = document.body.clientHeight - 220;
 
   ngOnInit() {
     this.loadData()
