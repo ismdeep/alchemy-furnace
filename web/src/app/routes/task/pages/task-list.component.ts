@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, OnDestroy, forwardRef} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, OnDestroy} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {Router} from '@angular/router';
 import {ModalHelper, _HttpClient, DrawerHelper, TitleService} from '@delon/theme';
@@ -29,14 +29,15 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   loading = false;
   intervalInstance;
+
   ngOnInit() {
     this.title.setTitle('Tasks - Alchemy Furnace')
-    this.getData();
+    this.getData(true)
     if (this.intervalInstance) {
       clearInterval(this.intervalInstance)
     }
     this.intervalInstance = setInterval(() => {
-      this.getData()
+      this.getData(false)
     }, 1000)
   }
 
@@ -47,15 +48,14 @@ export class TaskListComponent implements OnInit, OnDestroy {
   }
 
   tasks = []
-  tasks_loaded : boolean = false
   runs_map = {}
-  getData() {
+
+  getData(reload_task: boolean) {
     this.loading = true;
     this.http.get(`/api/v1/tasks`).pipe(tap(() => (this.loading = false))).subscribe(
       (res) => {
-        if (!this.tasks_loaded) {
-          this.tasks = res.data;
-          this.tasks_loaded = true
+        if (reload_task) {
+          this.tasks = res.data
         }
         for (let i = 0; i < res.data.length; i++) {
           let task = res.data[i]
@@ -80,20 +80,20 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   create() {
     this.drawerHelper.create('Create', TaskEditComponent, {}, {size: document.body.clientWidth * 0.618}).subscribe(() => {
-      this.getData();
+      this.getData(true)
     });
   }
 
   editTask(item) {
     this.drawerHelper.create('Edit', TaskEditComponent, {record: item}, {size: document.body.clientWidth * 0.618}).subscribe(() => {
-      this.getData();
+      this.getData(true)
     });
   }
 
   deleteTask(item) {
     this.http.delete(`/api/v1/tasks/${item.id}`).subscribe(() => {
       this.message.success('Deleted');
-      this.getData();
+      this.getData(true)
     });
   }
 
@@ -103,7 +103,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
       trigger_id: item.id,
       record: item
     }, {size: 800}).subscribe(() => {
-      this.getData()
+      this.getData(true)
     })
   }
 
@@ -112,13 +112,13 @@ export class TaskListComponent implements OnInit, OnDestroy {
       task_id: task.id,
       trigger_id: 0
     }, {size: 800}).subscribe(() => {
-      this.getData()
+      this.getData(true)
     });
   }
 
   deleteTrigger(taskInfo, item) {
     this.http.delete(`/api/v1/tasks/${taskInfo.id}/triggers/${item.id}`).subscribe(() => {
-      this.getData()
+      this.getData(true)
     })
   }
 
@@ -129,11 +129,22 @@ export class TaskListComponent implements OnInit, OnDestroy {
   }
 
   showLog(taskID, e) {
-    this.modalHelper.create(RunDetailComponent, {id: taskID, run_id: e.id}, {size: document.body.clientWidth * 0.8}).subscribe(() => {
+    this.modalHelper.create(RunDetailComponent, {
+        id: taskID,
+        run_id: e.id
+      },
+      {
+        size: document.body.clientWidth * 0.95,
+        modalOptions: {
+          nzStyle: {
+            top: window.document.body.clientHeight * 0.05 + 'px'
+          }
+        }
+      }).subscribe(() => {
     })
   }
 
-  getRunColor(status,exit_code) {
+  getRunColor(status, exit_code) {
     if (status === 0 || status === 1) {
       return "yellow"
     }
