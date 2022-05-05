@@ -9,6 +9,7 @@ require (
 	github.com/ismdeep/log v0.0.5
 	github.com/ismdeep/parser v0.0.2
 	github.com/ismdeep/rand v0.3.0
+	github.com/ismdeep/wecombot v0.0.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.7.0
 	github.com/swaggo/swag v1.7.8

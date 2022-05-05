@@ -3,11 +3,14 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/ismdeep/alchemy-furnace/config"
 	"github.com/ismdeep/alchemy-furnace/executor"
 	"github.com/ismdeep/alchemy-furnace/model"
 	"github.com/ismdeep/alchemy-furnace/response"
 	"github.com/ismdeep/alchemy-furnace/runner"
 	"github.com/ismdeep/log"
+	"github.com/ismdeep/wecombot"
 	"time"
 )
 
@@ -112,6 +115,18 @@ func (receiver *runHandler) Start(taskID uint, triggerID uint) error {
 			log.Error("Run", log.FieldErr(err))
 		}
 		model.DB.Save(run)
+
+		if run.ExitCode != 0 && config.ROOT.WeCom != "" {
+			// 发送通知
+			bot := wecombot.New(config.ROOT.WeCom)
+			content := fmt.Sprintf("Task execute failed. [%v - %v]", trigger.Task.Name, trigger.Name)
+			if err := bot.SendText(content); err != nil {
+				log.Error("send message error",
+					log.String("wecom", config.ROOT.WeCom),
+					log.String("content", content), log.FieldErr(err))
+			}
+		}
+
 	}(run.ID, executorID)
 
 	return nil
