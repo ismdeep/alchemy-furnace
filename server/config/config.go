@@ -19,6 +19,7 @@ type config struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
 	} `yaml:"auth"`
+	WeCom string `yaml:"wecom"`
 }
 
 var ROOT config
