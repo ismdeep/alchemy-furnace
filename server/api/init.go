@@ -23,6 +23,13 @@ func Authorization() gin.HandlerFunc {
 		c.Set("trigger_id", triggerID)
 		c.Set("run_id", runID)
 
+		// X-Token verification
+		xToken := c.Request.Header.Get("X-Token")
+		if xToken == config.ROOT.Token {
+			c.Next()
+			return
+		}
+
 		token := c.Request.Header.Get("Authorization")
 		if len(token) > 7 && token[0:7] != "Bearer " {
 			c.JSON(200, map[string]interface{}{"code": 403, "msg": "token verification failed"})

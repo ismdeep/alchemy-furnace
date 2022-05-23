@@ -13,13 +13,14 @@ import (
 var WorkDir string
 
 type config struct {
-	Bind string `yaml:"bind"`
-	JWT  string `yaml:"jwt"`
-	Auth struct {
-		Username string `yaml:"username"`
-		Password string `yaml:"password"`
-	} `yaml:"auth"`
-	WeCom string `yaml:"wecom"`
+	Bind  string
+	JWT   string
+	Token string // X-Token
+	Auth  struct {
+		Username string
+		Password string
+	}
+	WeCom string
 }
 
 var ROOT config
